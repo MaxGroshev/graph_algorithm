@@ -24,6 +24,8 @@ void run_tree(std::istream & in_strm) {
         }
         type_of_data = '\0';
     }
+    pine.graphviz_dump();
+    // pine.run();
     std::cout << std::endl;
 }
 

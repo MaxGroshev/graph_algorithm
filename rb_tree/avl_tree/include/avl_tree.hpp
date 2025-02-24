@@ -170,9 +170,11 @@ std::vector<key_type> tree_t<key_type>::store_inorder_walk() const {
 
 template< typename key_type>
 void tree_t<key_type>::graphviz_dump() const {
-    graphviz::dump_graph_t tree_dump("../graph_lib/tree_dump.dot"); //make boost::program_options
+    graphviz::dump_graph_t tree_dump("../graph_lib/tree_dump.dot"); 
 
     root_->graphviz_dump(tree_dump);
+    tree_dump.run_graphviz("../graph_lib/tree_dump.dot", "../graph_lib");
     tree_dump.close_input();
+    // tree_dump.close_input();
 }
 }

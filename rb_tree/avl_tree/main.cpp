@@ -11,6 +11,7 @@ int main() {
 
     std::clog << "----------------------------------------------\n";
     std::clog << "Total tree run time: " << (tree_end_time - tree_start_time) / 0.1ms
+
     << " * 10^(-5) sec\n";
 
     return 0;

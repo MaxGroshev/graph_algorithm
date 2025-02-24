@@ -17,7 +17,7 @@ struct node_t
     std::string shape     = "Mrecord";
     std::string fillcolor = "#eed8cd";
     std::string style     = "filled";
-    std::string fontcolor = "#31032A";
+    std::string fontcolor = "#FAF6F4";
     std::string fontname  = "Calibri";
     std::string color     = "white";
     std::string margin    = "";
@@ -63,9 +63,11 @@ struct dump_graph_t
         graphviz_strm << "}\n";
         graphviz_strm.close();
     };
+    inline void run_graphviz (const char* dot_dir, const char* pic_dir);
 };
 
 //-----------------------------------------------------------------------------------------
+
 
 }
 

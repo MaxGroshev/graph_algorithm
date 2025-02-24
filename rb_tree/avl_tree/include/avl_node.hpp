@@ -44,14 +44,22 @@ class wrap_node_t final {
 
 template <typename key_type = int>
 class node_t {
-    using unique_ptr_node_t = typename std::unique_ptr<node_t<key_type>>;
+    public:
+        enum node_col {
+            BLACK_ = 0,
+            RED_   = 1,
+        };
+        
+    private: 
+        using unique_ptr_node_t = typename std::unique_ptr<node_t<key_type>>;
 
-    unique_ptr_node_t left_      = nullptr;
-    unique_ptr_node_t right_     = nullptr;
-    node_t<key_type>* parent_ = nullptr;
-    size_t size_   = 1;
-    size_t height_ = 1;
-    key_type key_;
+        unique_ptr_node_t left_      = nullptr;
+        unique_ptr_node_t right_     = nullptr;
+        node_t<key_type>* parent_ = nullptr;
+        size_t size_   = 1;
+        size_t height_ = 1;
+        node_col color_  = node_col::BLACK_;  
+        key_type key_;
 
     public:
 
@@ -92,6 +100,9 @@ class node_t {
         }
         size_t get_size(const unique_ptr_node_t& node) const {
             if (node) return node->size_; return 0;
+        }
+        node_col get_color() const {
+            return color_;
         }
         key_type const & get_key() const {
             return key_;
@@ -451,14 +462,14 @@ void node_t<key_type>::graphviz_dump(graphviz::dump_graph_t& tree_dump) const {
     {
         tree_dump.graph_edge.fillcolor = "#7FC7FF";
         tree_dump.graph_edge.color     = "#7FC7FF";
-        tree_dump.graph_edge.print_edge(this, left_, tree_dump.graphviz_strm);
+        tree_dump.graph_edge.print_edge(this, left_.get(), tree_dump.graphviz_strm);
         left_->graphviz_dump(tree_dump);
     }
     if (right_ != nullptr)
     {
         tree_dump.graph_edge.fillcolor = "#DC143C";
         tree_dump.graph_edge.color     = "#DC143C";
-        tree_dump.graph_edge.print_edge(this, right_, tree_dump.graphviz_strm);
+        tree_dump.graph_edge.print_edge(this, right_.get(), tree_dump.graphviz_strm);
         right_->graphviz_dump(tree_dump);
     }
 }
