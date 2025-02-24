@@ -101,21 +101,23 @@ void tree_t<key_type>::insert(const key_type& key) {
     root_->set_parent(nullptr);
 }
 
-template< typename key_type>
-template<typename... Args>
-void tree_t<key_type>::emplace(Args&&... args) {
 
-    key_type key = {std::move(args)...};
-    if (root_ == nullptr) {
-        std::unique_ptr<node_t<key_type>> tmp_root_ =
-                         std::make_unique<node_t<key_type>>(std::forward<key_type>(key));
-        assert(tmp_root_ != nullptr);
-        root_ = std::move(tmp_root_);
-    }
-    root_ = root_->emplace(root_, std::forward<key_type>(key));
+//TODO: emplace
+// template< typename key_type>
+// template<typename... Args>
+// void tree_t<key_type>::emplace(Args&&... args) {
 
-    root_->set_parent(nullptr);
-}
+//     key_type key = {std::move(args)...};
+//     if (root_ == nullptr) {
+//         std::unique_ptr<node_t<key_type>> tmp_root_ =
+//                          std::make_unique<node_t<key_type>>(std::forward<key_type>(key));
+//         assert(tmp_root_ != nullptr);
+//         root_ = std::move(tmp_root_);
+//     }
+//     root_ = root_->emplace(root_, std::forward<key_type>(key));
+
+//     root_->set_parent(nullptr);
+// }
 
 //-----------------------------------------------------------------------------------------
 

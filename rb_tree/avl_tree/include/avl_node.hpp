@@ -49,7 +49,7 @@ class node_t {
             BLACK_ = 0,
             RED_   = 1,
         };
-        
+
     private: 
         using unique_ptr_node_t = typename std::unique_ptr<node_t<key_type>>;
 
@@ -58,7 +58,7 @@ class node_t {
         node_t<key_type>* parent_ = nullptr;
         size_t size_   = 1;
         size_t height_ = 1;
-        node_col color_  = node_col::BLACK_;  
+        node_col color_  = node_col::RED_;  
         key_type key_;
 
     public:
@@ -66,15 +66,16 @@ class node_t {
         node_t(const key_type& key) : key_(key){};
         node_t(key_type&& key) :  key_(std::forward<key_type>(key)) {};
         node_t(const node_t<key_type>& node) : key_(node.key_),
-                                               height_(node.height_) {
+                                               height_(node.height_),
+                                               color_(node.color_) {
 
             unique_ptr_node_t ret_node = safe_copy(node);
             left_  = std::move(ret_node->left_);
             right_ = std::move(ret_node->right_);
         }
-        node_t(key_type key, size_t size, size_t height) :
+        node_t(key_type key, size_t size, size_t height, node_col color) :
             key_(key),
-            size_(size), height_(height)
+            size_(size), height_(height), color_(color)
             {};
 
         unique_ptr_node_t safe_copy (const node_t<key_type>& node);
@@ -155,6 +156,7 @@ node_t<key_type>& node_t<key_type>::operator= (const node_t<key_type>& node) {
 
     key_   = node.key_;
     height_= node.height_;
+    color_ = node.color_;
 
     left_  = std::move(tmp_left_);
     right_ = std::move(tmp_right_);
@@ -169,14 +171,15 @@ node_t<key_type>::safe_copy(const node_t<key_type>& origine_node) {
     auto origine_node_ptr = &origine_node;
     std::unique_ptr<node_t<key_type>> new_node =
                         std::make_unique<node_t<key_type>>(origine_node_ptr->key_,
-                        origine_node_ptr->size_, origine_node_ptr->height_);
+                        origine_node_ptr->size_, origine_node_ptr->height_, origine_node_ptr->color_);
 
     node_t<key_type>* iter_node = new_node.get();
     while (origine_node_ptr != nullptr) {
         if (iter_node->left_ == nullptr && origine_node_ptr->left_ != nullptr) {
             iter_node->left_ = std::make_unique<node_t<key_type>>(
                             origine_node_ptr->left_->key_,
-                            origine_node_ptr->left_->size_, origine_node_ptr->left_->height_);
+                            origine_node_ptr->left_->size_, origine_node_ptr->left_->height_, 
+                            origine_node_ptr->left_->color_);
             iter_node->left_->parent_ = iter_node;
 
             iter_node    = iter_node->left_.get();
@@ -185,7 +188,8 @@ node_t<key_type>::safe_copy(const node_t<key_type>& origine_node) {
         else if (iter_node->right_ == nullptr && origine_node_ptr->right_ != nullptr) {
             iter_node->right_ = std::make_unique<node_t<key_type>>(
                             origine_node_ptr->right_->key_,
-                            origine_node_ptr->right_->size_, origine_node_ptr->right_->height_);
+                            origine_node_ptr->right_->size_, origine_node_ptr->right_->height_,
+                            origine_node_ptr->left_->color_);
             iter_node->right_->parent_ = iter_node;
 
             iter_node    = iter_node->right_.get();
@@ -235,38 +239,38 @@ node_t<key_type>::insert(unique_ptr_node_t& cur_node, const key_type& key) {
     return balance_subtree(cur_node, key);
 }
 
+//TODO: emplace
+// template<typename key_type>
+// typename node_t<key_type>::unique_ptr_node_t
+// node_t<key_type>::emplace(unique_ptr_node_t& cur_node, key_type&& key) {
+//     if(!cur_node)
+//         throw("Invalid ptr");
 
-template<typename key_type>
-typename node_t<key_type>::unique_ptr_node_t
-node_t<key_type>::emplace(unique_ptr_node_t& cur_node, key_type&& key) {
-    if(!cur_node)
-        throw("Invalid ptr");
+//     if (cur_node->key_ < key) {
+//         if (cur_node->right_ != nullptr) {
+//             auto new_node = emplace(cur_node->right_, std::forward<key_type>(key));
+//             std::swap(cur_node->right_, new_node);
+//         }
+//         else
+//             cur_node->right_ = std::make_unique<node_t<key_type>>(std::forward<key_type>(key));
 
-    if (cur_node->key_ < key) {
-        if (cur_node->right_ != nullptr) {
-            auto new_node = emplace(cur_node->right_, std::forward<key_type>(key));
-            std::swap(cur_node->right_, new_node);
-        }
-        else
-            cur_node->right_ = std::make_unique<node_t<key_type>>(std::forward<key_type>(key));
+//         cur_node->right_->parent_ = cur_node.get();
+//     }
+//     else if (cur_node->key_ > key) {
+//         if (cur_node->left_ != nullptr) {
+//             cur_node->left_ = emplace(cur_node->left_, std::forward<key_type>(key));
+//         }
+//         else
+//             cur_node->left_ = std::make_unique<node_t<key_type>>(std::forward<key_type>(key));
 
-        cur_node->right_->parent_ = cur_node.get();
-    }
-    else if (cur_node->key_ > key) {
-        if (cur_node->left_ != nullptr) {
-            cur_node->left_ = emplace(cur_node->left_, std::forward<key_type>(key));
-        }
-        else
-            cur_node->left_ = std::make_unique<node_t<key_type>>(std::forward<key_type>(key));
+//         cur_node->left_->parent_ = cur_node.get();
+//     }
 
-        cur_node->left_->parent_ = cur_node.get();
-    }
+//     change_height(cur_node);
+//     change_size(cur_node);
 
-    change_height(cur_node);
-    change_size(cur_node);
-
-    return balance_subtree(cur_node, key);
-}
+//     return balance_subtree(cur_node, key);
+// }
 
 //----------------------------ROTATES------------------------------------------------------
 

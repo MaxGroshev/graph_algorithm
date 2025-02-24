@@ -18,6 +18,8 @@ void node_t::print_node (const T* data_node, std::ofstream& graphviz_strm) {
             fillcolor = "#0F67B1";
             break;
         }
+        default : 
+            assert(false);
     }
 
     graphviz_strm << "node" << data_node <<       " [shape      = \"" << shape
