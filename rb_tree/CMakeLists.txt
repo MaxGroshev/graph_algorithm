@@ -12,10 +12,10 @@ add_compile_options(-std=c++20)
 
 #-----------------------------------------------------------------------------------------
 
-set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_BUILD_TYPE "Debug")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_CXX_FLAGS  -fsanitize=address,leak)
+    set(CMAKE_CXX_FLAGS  -g)
     add_compile_definitions(MY_DEBUG)
     message("Debug_version")
 endif ()

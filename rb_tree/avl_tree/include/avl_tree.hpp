@@ -10,6 +10,8 @@ class tree_t final {
     using unique_ptr_node_t = typename std::unique_ptr<node_t<key_type>>;
 
     unique_ptr_node_t root_ = nullptr;
+    
+    void   balance(const key_type& key);
     public:
         tree_t(){};
         ~tree_t();
@@ -34,7 +36,7 @@ class tree_t final {
 
         void   insert(const key_type& key);
         template<typename... Args>
-
+        
         void   emplace(Args&&... args);
         size_t range_query(const int l_bound, const int u_bound) const;
         size_t distance(const wrap_node_t<key_type>& l_node, const wrap_node_t<key_type>& u_node) const;
@@ -93,6 +95,8 @@ void tree_t<key_type>::insert(const key_type& key) {
                                         std::make_unique<node_t<key_type>>(key);
         assert(tmp_root_ != nullptr);
         root_ = std::move(tmp_root_);
+        // root_->set_color(node_col::BLACK_);
+        return;
     }
     // std::cout << "Here\n" << key << std::endl;
     root_ = root_->insert(root_, key);
@@ -100,6 +104,12 @@ void tree_t<key_type>::insert(const key_type& key) {
 
     root_->set_parent(nullptr);
 }
+
+// template< typename key_type>
+// void tree_t<key_type>::balance(const key_type& key) {
+
+   
+// }
 
 
 //TODO: emplace
@@ -154,7 +164,7 @@ size_t tree_t<key_type>::range_query(const int l_bound, const int u_bound) const
 template< typename key_type>
 size_t tree_t<key_type>::distance(const wrap_node_t<key_type>& l_node,
                                     const wrap_node_t<key_type>& u_node) const {
-    assert(l_node != nullptr && u_node != nullptr);
+    // assert(l_node.is_valid() && u_node.is_valid());
     size_t u_bound_rank = l_node.define_node_rank(root_.get());
     size_t l_bound_rank = u_node.define_node_rank(root_.get());
     return u_bound_rank - l_bound_rank + 1;
