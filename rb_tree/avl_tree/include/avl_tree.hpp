@@ -34,6 +34,7 @@ class tree_t final {
         ~tree_t();
 
         void   insert(key_type key);
+        void   erase(const key_type& key);
         size_t range_query(int l_bound, int u_bound) const;
         size_t distance(node_t<key_type>* l_node, node_t<key_type>* u_node) const;
         node_t<key_type>* upper_bound(key_type key) const;
@@ -102,6 +103,14 @@ void tree_t<key_type>::insert(key_type key) {
         root_ = tmp_root_;
     }
     root_ = root_->insert(root_, key);
+    root_->parent_ = nullptr;
+}
+
+template< typename key_type>
+void tree_t<key_type>::erase(const key_type& key) {
+    root_ = root_->erase(root_, key);
+
+    root_->set_parent(nullptr);
     root_->parent_ = nullptr;
 }
 

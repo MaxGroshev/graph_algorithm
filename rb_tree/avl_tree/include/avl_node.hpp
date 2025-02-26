@@ -19,19 +19,18 @@ class node_t {
         node_t<key_type>* right_ = nullptr;
         node_t<key_type>* parent_= nullptr;
         size_t size_   = 1;
-        size_t height_ = 1;
         node_col color_  = node_col::BLACK_;
 
     private:
-        node_t(key_type key, size_t size, size_t height) :
+        node_t(key_type key, size_t size, node_col color) :
             key_(key),
-            size_(size), height_(height)
+            color_(color),
+            size_(size)
             {};
 
     public:
         node_t(key_type key) : key_(key) {};
-        node_t(const node_t<key_type>& node) : key_(node.key_),
-                                               height_(node.height_), color_(node.color_) {
+        node_t(const node_t<key_type>& node) : key_(node.key_), color_(node.color_) {
 
             node_t<key_type>* ret_node = safe_copy(&node);
             left_  = ret_node->left_;
@@ -40,7 +39,7 @@ class node_t {
             delete ret_node;
         }
         node_t(node_t<key_type>&& node): key_(node.key_), color_(node.color_),
-                                           parent_(node.parent), height_(node.height_),
+                                           parent_(node.parent),
                                            left_(node.left_),    right_(node.right_) {
             node.right_ = nullptr;
             node.left_  = nullptr;
@@ -53,16 +52,6 @@ class node_t {
 
         node_t<key_type>* balance_subtree(avl::node_t<key_type>* cur, avl::node_t<key_type>* root);
         node_t<key_type>* insert(avl::node_t<key_type>* cur_node, key_type key);
-
-        int find_balance_fact() const {
-            return (get_height(right_) - get_height(left_));
-        }
-        size_t get_height(node_t< key_type>* node) const {
-            if (node) return node->height_; else return 0;
-        }
-        void change_height() {
-            height_ = 1 + find_max(get_height(left_), get_height(right_));
-        }
         size_t get_size(node_t<key_type>* node) const {
             if (node) return node->size_; else return 0;
         }
@@ -72,38 +61,35 @@ class node_t {
         key_type const & get_key() const {
             return key_;
         }
-        // unique_ptr_node_t& tree_minimum(unique_ptr_node_t& cur) {
-        //     while (cur->left_ != nullptr) {
-        //         cur = cur->left_;
-        //     }
-        //     return cur;
-        // }
+        node_t<key_type>* tree_minimum(node_t<key_type>* cur) {
+            while (cur->left_ != nullptr) {
+                cur = cur->left_;
+            }
+            return cur;
+        }
 
-        // unique_ptr_node_t& tree_maximum(const unique_ptr_node_t& cur) const {
-        //     while (cur->right_ != nullptr) {
-        //         cur = cur->right_;
-        //     }
-        //     return cur;
-        // }
-    //BAD Design?
-        // node_t<key_type>* tree_successor(unique_ptr_node_t& cur) {
-        //     if (cur->right_ != nullptr) {
-        //         return tree_minimum(cur->right_).get();
-        //     }
-        //     auto cur_parent = cur->parent_;
-        //     auto cur_raw    = cur.get();
-        //     while (cur_parent != nullptr && cur_raw == cur_parent->right_) {
-        //         cur_raw = cur_parent->right_.get();
-        //         cur_parent = cur_parent->parent_;
-        //     }
-        //     return cur_parent;
-        // }
+        node_t<key_type>* tree_maximum(node_t<key_type>* cur) {
+            while (cur->right_ != nullptr) {
+                cur = cur->right_;
+            }
+            return cur;
+        }
+        node_t<key_type>* tree_successor(node_t<key_type>* cur) {
+            if (cur->right_ != nullptr) {
+                return tree_minimum(cur->right_);
+            }
+            auto cur_parent = cur->parent_;
+            auto cur_raw    = cur;
+            while (cur_parent != nullptr && cur_raw == cur_parent->right_) {
+                cur_raw = cur_parent->right_.get();
+                cur_parent = cur_parent->parent_;
+            }
+            return cur_parent;
+        }
 
-        // unique_ptr_node_t balance_subtree(unique_ptr_node_t& cur_node, unique_ptr_node_t& root);
         void rotate_to_left(node_t<key_type>* cur_node, node_t<key_type>* root);
         void rotate_to_right(node_t<key_type>* cur_node, node_t<key_type>* root);
-        // unique_ptr_node_t erase(unique_ptr_node_t& root, const key_type& key);
-        // unique_ptr_node_t insert(unique_ptr_node_t& cur_node,  const key_type& key);
+        node_t<key_type>* erase(node_t<key_type>* root, const key_type& key);
         
         std::vector<key_type> store_inorder_walk() const;
         void graphviz_dump(graphviz::dump_graph_t& tree_dump) const ;
@@ -111,9 +97,9 @@ class node_t {
         node_t<key_type>* lower_bound(key_type key);
 
         size_t define_node_rank(node_t<key_type>* root) const;
-
+        
         private:
-        // unique_ptr_node_t erase_node_impl(node_t<key_type>* cur, node_t<key_type>* root);
+        node_t<key_type>* erase_node_impl(node_t<key_type>* cur, node_t<key_type>* root);
         // void get_sibling();
     };
 }
@@ -132,7 +118,6 @@ node_t<key_type>& node_t<key_type>::operator= (const node_t<key_type>& node) {
     assert(tmp_left_ != nullptr && tmp_right_ != nullptr);
 
     key_ = node.key_;
-    height_ = node.height_;
     color_ = node.color_;
 
     delete left_;
@@ -158,7 +143,6 @@ node_t<key_type>& node_t<key_type>::operator= (node_t<key_type>&& node) {
     right_ = node.right_;
     parent_ = node.parent_;
     key_ = node.key_;
-    height_ = node.height_;
     color_ = node.color_;
 
     node.right_ = nullptr;
@@ -245,6 +229,71 @@ node_t<key_type>* node_t<key_type>::insert(avl::node_t<key_type>* root, key_type
     }
 }
 
+template<typename key_type>
+node_t<key_type>*
+node_t<key_type>::erase(node_t<key_type>* root, const key_type& key) {
+    if(!root)
+        throw("Invalid ptr");
+    //make search func
+    node_t<key_type>* parent = root->parent_;
+    node_t<key_type>* cur = root;
+    while (cur->get_key() != key) {
+        parent = cur;
+        if (key > cur->get_key()) {
+            cur = cur->right_.get();
+        }
+        else if (key < cur->get_key()) {
+            cur = cur->left_.get();
+        }
+    }
+    return erase_node_impl(cur, root);
+}
+
+template<typename key_type>
+node_t<key_type>*
+node_t<key_type>::erase_node_impl(node_t<key_type>* z, node_t<key_type>* root) {
+    node_t<key_type>* x = nullptr;
+    node_t<key_type>* y = z;
+    if (z->left_ == nullptr || z->right_ == nullptr) {
+        y = tree_successor(z);
+    }
+    if (y->left_ != nullptr) {
+        x = y->left_.get();
+    }
+    else {
+        x = y->right_.get();
+    }
+    x->parent_ = y->parent_;
+    if (y->parent_ == nullptr) {
+        root = x;
+    }
+    else if (y == y->parent_->left_.get()) {
+        y->parent_ = x;
+    }
+    else {
+        y->parent_ = x;
+    }
+    if (y != z) {
+        z->key_ = y->key_;
+    }
+    if (y->color_ == node_col::BLACK_) {
+        // return fix_erase(x, root);
+    }
+}
+
+// template<typename key_type>
+// typename node_t<key_type>::unique_ptr_node_t
+// node_t<key_type>::fix_erase(node_t<key_type>* x, unique_ptr_node_t& root) {
+//     node_t<key_type>* w = nullptr;
+//     while (x != root.get() && x->color_ == node_col::BLACK_) {
+//         if (x == x->parent_->left_) {
+//             w = x->parent_->right_;
+//             if (w->color_ == node_col::RED_) {
+//                 rotate_to_left(, root)
+//             }
+//         }
+//     }
+// }
 
 //----------------------------ROTATES------------------------------------------------------
 

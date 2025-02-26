@@ -17,7 +17,7 @@ void run_tree(std::istream & in_strm) {
         if (type_of_data == 'k') {
             in_strm >> data;
             pine.insert(data);
-            pine.graphviz_dump();
+            // pine.graphviz_dump();
         }
         else if (type_of_data == 'q') {
             in_strm >> l_bound >> u_bound;
