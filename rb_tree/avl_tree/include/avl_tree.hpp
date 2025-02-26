@@ -35,7 +35,7 @@ class tree_t final {
         tree_t<key_type>& operator= (const tree_t<key_type>& tree);
 
         void   insert(const key_type& key);
-                
+        void   erase(const key_type& key);
         size_t range_query(const int l_bound, const int u_bound) const;
         size_t distance(const wrap_node_t<key_type>& l_node, const wrap_node_t<key_type>& u_node) const;
         wrap_node_t<key_type> upper_bound(const key_type& key) const;
@@ -97,6 +97,15 @@ void tree_t<key_type>::insert(const key_type& key) {
     }
     // std::cout << "Here\n" << key << std::endl;
     root_ = root_->insert(root_, key);
+    // std::cout << "out   \n" << std::endl;
+
+    root_->set_parent(nullptr);
+}
+
+template< typename key_type>
+void tree_t<key_type>::erase(const key_type& key) {
+    // std::cout << "Here\n" << key << std::endl;
+    root_ = root_->erase(root_, key);
     // std::cout << "out   \n" << std::endl;
 
     root_->set_parent(nullptr);
