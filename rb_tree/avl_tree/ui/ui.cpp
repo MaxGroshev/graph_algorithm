@@ -27,6 +27,7 @@ void run_tree(std::istream & in_strm) {
     }
     pine.graphviz_dump();
     std::cout << std::endl;
+    // pine.graphviz_dump();
 }
 
 void run_set_and_tree(std::istream & in_strm) {

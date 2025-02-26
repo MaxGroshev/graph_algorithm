@@ -5,156 +5,150 @@
 
 namespace avl {
 
-template< typename key_type = int>
+template<typename key_type = int>
 class tree_t final {
-    using unique_ptr_node_t = typename std::unique_ptr<node_t<key_type>>;
-
-    unique_ptr_node_t root_ = nullptr;
-    
-    void   balance(const key_type& key);
+    private:
+        node_t<key_type>* root_ = nullptr;
     public:
         tree_t(){};
-        ~tree_t();
-        tree_t(const key_type& key) {
-            root_ = std::make_unique<node_t<key_type>>(key);
+        tree_t(key_type key) {
+            root_ = new node_t(key);
             assert(root_ != nullptr);
         };
         tree_t(const tree_t<key_type>& tree) {
 
-            root_ = std::make_unique<node_t<key_type>>(*(tree.root_));
-            unique_ptr_node_t& root_left  = root_->get_left();
-            unique_ptr_node_t& root_right = root_->get_right();
-            if (root_left != nullptr)
-                root_left->set_parent(root_.get());
-            if (root_right != nullptr)
-                root_right->set_parent(root_.get());
+            root_ = new node_t<key_type> (*(tree.root_));
+            if (root_->left_ != nullptr)
+                root_->left_->parent_ = root_;
+            if (root_->right_ != nullptr)
+                root_->right_->parent_ = root_;
+
         };
-        tree_t(tree_t<key_type>&& tree) = default;
-
-        tree_t<key_type>& operator= (tree_t<key_type>&& tree) = default;
+        tree_t(tree_t<key_type>&& tree) noexcept {
+            root_ = tree.root_;
+            tree.root_ = nullptr;
+            assert(root_ != nullptr);
+        };
         tree_t<key_type>& operator= (const tree_t<key_type>& tree);
+        tree_t<key_type>& operator= (tree_t<key_type>&& tree);
+        ~tree_t();
 
-        void   insert(const key_type& key);
-        void   erase(const key_type& key);
-        size_t range_query(const int l_bound, const int u_bound) const;
-        size_t distance(const wrap_node_t<key_type>& l_node, const wrap_node_t<key_type>& u_node) const;
-        wrap_node_t<key_type> upper_bound(const key_type& key) const;
-        wrap_node_t<key_type> lower_bound(const key_type& key) const;
+        void   insert(key_type key);
+        size_t range_query(int l_bound, int u_bound) const;
+        size_t distance(node_t<key_type>* l_node, node_t<key_type>* u_node) const;
+        node_t<key_type>* upper_bound(key_type key) const;
+        node_t<key_type>* lower_bound(key_type key) const;
         std::vector<key_type> store_inorder_walk() const;
         void graphviz_dump() const;
 };
 
 //-----------------------------------------------------------------------------------------
 
-template< typename key_type>
+template<typename key_type>
 tree_t<key_type>::~tree_t<key_type> () {
 
     if (root_ == nullptr) return;
-    std::stack<std::unique_ptr<node_t<key_type>>> nodes;
-    nodes.push(std::move(root_));
-    std::unique_ptr<node_t<key_type>> front = nullptr;
+    // graphviz_dump();
+    std::stack<node_t<key_type>*> nodes;
+    nodes.push(root_);
+    node_t<key_type>* front = nullptr;
 
     while(!nodes.empty()) {
-        front = std::move(nodes.top());
+        front = nodes.top();
         nodes.pop();
-        if (front != nullptr) {
-            if (front->get_left() != nullptr) {
-                nodes.push(std::move(front->get_left()));
+        if (front != nullptr) { //case of deleteing after move constr
+            if (front->left_ != nullptr) {
+                nodes.push(front->left_);
             }
-            if (front->get_right() != nullptr) {
-                nodes.push(std::move(front->get_right()));
+            if (front->right_ != nullptr) {
+                nodes.push(front->right_);
             }
         }
-        front.reset();
+        delete front;
     }
 }
 
-//-----------------------------------------------------------------------------------------
-
-template< typename key_type>
+template<typename key_type>
 tree_t<key_type>& tree_t<key_type>::operator= (const tree_t<key_type>& tree) {
     if (this == &tree)
         return *this;
 
-    std::unique_ptr<node_t<key_type>> tmp_root_ =
-                                    std::make_unique<node_t<key_type>>(*(tree.root_));
+    node_t<key_type>* tmp_root_ = new node_t<key_type> (*(tree.root_));
     assert(tmp_root_ == nullptr);
-    root_ = std::move(tmp_root_);
+    delete root_;
+    root_ = tmp_root_;
+    return *this;
+}
 
+template<typename key_type>
+tree_t<key_type>&tree_t<key_type>::operator= (tree_t<key_type>&& tree) {
+    if (this == &tree)
+        return *this;
+
+    node_t<key_type>* tmp_root_ = tree.root_;
+    tree.root_ = nullptr;
+    delete root_;
+    root_ = tmp_root_;
     return *this;
 }
 
 //-----------------------------------------------------------------------------------------
 
-template< typename key_type>
-void tree_t<key_type>::insert(const key_type& key) {
+template<typename key_type>
+void tree_t<key_type>::insert(key_type key) {
     if (root_ == nullptr) {
-        std::unique_ptr<node_t<key_type>> tmp_root_ =
-                                        std::make_unique<node_t<key_type>>(key);
+        node_t<key_type>* tmp_root_ = new node_t<key_type> (key);
         assert(tmp_root_ != nullptr);
-        root_ = std::move(tmp_root_);
-        return;
+        root_ = tmp_root_;
     }
-    // std::cout << "Here\n" << key << std::endl;
     root_ = root_->insert(root_, key);
-    // std::cout << "out   \n" << std::endl;
-
-    root_->set_parent(nullptr);
-}
-
-template< typename key_type>
-void tree_t<key_type>::erase(const key_type& key) {
-    // std::cout << "Here\n" << key << std::endl;
-    root_ = root_->erase(root_, key);
-    // std::cout << "out   \n" << std::endl;
-
-    root_->set_parent(nullptr);
+    root_->parent_ = nullptr;
 }
 
 //-----------------------------------------------------------------------------------------
 
-template< typename key_type>
-wrap_node_t<key_type> tree_t<key_type>::upper_bound(const key_type& key) const {
-    node_t<key_type>* node = root_->upper_bound(root_.get(), key);
+template<typename key_type>
+node_t<key_type>* tree_t<key_type>::upper_bound(key_type key) const {
+    node_t<key_type>* node = root_->upper_bound(key);
     assert(node != nullptr);
-    return wrap_node_t{node};
+    return node;
 }
 
-template< typename key_type>
-wrap_node_t<key_type>  tree_t<key_type>::lower_bound(const key_type& key) const {
-    node_t<key_type>*  node = root_->lower_bound(root_.get(), key);
+template<typename key_type>
+node_t<key_type>* tree_t<key_type>::lower_bound(key_type key) const {
+    node_t<key_type>* node = root_->lower_bound(key);
     assert(node != nullptr);
-    return wrap_node_t{node};
+    return node;
 }
 
-template< typename key_type>
-size_t tree_t<key_type>::range_query(const int l_bound, const int u_bound) const {
+template<typename key_type>
+size_t tree_t<key_type>::range_query(int l_bound, int u_bound) const {
 
     if (l_bound >= u_bound || root_ == nullptr) {
         return 0;
     }
-    auto l_node = upper_bound(u_bound);
-    auto u_node = lower_bound(l_bound);
-    // assert(l_node != nullptr && u_node != nullptr);
+    node_t<key_type>* l_node = upper_bound(u_bound);
+    node_t<key_type>* u_node = lower_bound(l_bound);
+    assert(l_node != nullptr && u_node != nullptr);
 
-    if (u_node.get_key() > u_bound || l_node.get_key() < l_bound) { //corner_case
+    if (u_node->key_ > u_bound || l_node->key_ < l_bound) { //corner_case
         return 0;
     }
     return distance(l_node, u_node);
 }
 
-template< typename key_type>
-size_t tree_t<key_type>::distance(const wrap_node_t<key_type>& l_node,
-                                    const wrap_node_t<key_type>& u_node) const {
-    // assert(l_node.is_valid() && u_node.is_valid());
-    size_t u_bound_rank = l_node.define_node_rank(root_.get());
-    size_t l_bound_rank = u_node.define_node_rank(root_.get());
+template<typename key_type>
+size_t tree_t<key_type>::distance(node_t<key_type>* l_node,
+                                     node_t<key_type>* u_node) const {
+    assert(l_node != nullptr && u_node != nullptr);
+    size_t u_bound_rank = l_node->define_node_rank(root_);
+    size_t l_bound_rank = u_node->define_node_rank(root_);
     return u_bound_rank - l_bound_rank + 1;
 }
 
 //-----------------------------------------------------------------------------------------
 
-template< typename key_type>
+template<typename key_type>
 std::vector<key_type> tree_t<key_type>::store_inorder_walk() const {
     if (root_ == nullptr) {
         return std::vector<key_type> {};
@@ -162,7 +156,7 @@ std::vector<key_type> tree_t<key_type>::store_inorder_walk() const {
     return root_->store_inorder_walk();
 }
 
-template< typename key_type>
+template<typename key_type>
 void tree_t<key_type>::graphviz_dump() const {
     graphviz::dump_graph_t tree_dump("../graph_lib/tree_dump.dot"); 
 

@@ -31,4 +31,3 @@ static size_t range_query(const T& container, key_type l_bound, key_type u_bound
 }
 
 };
-
