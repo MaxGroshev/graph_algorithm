@@ -15,7 +15,7 @@ add_compile_options(-std=c++20)
 set(CMAKE_BUILD_TYPE "Debug")
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_CXX_FLAGS  -g)
+    set(CMAKE_CXX_FLAGS  -fsanitize=address)
     add_compile_definitions(MY_DEBUG)
     message("Debug_version")
 endif ()

@@ -4,6 +4,7 @@
 #include <memory>
 #include <stack>
 #include <cassert>
+#include <stdexcept>
 #include <utility>
 
 //-----------------------------------------------------------------------------------------
@@ -125,12 +126,12 @@ class node_t {
             }
         }
 
-        unique_ptr_node_t balance_subtree(unique_ptr_node_t& cur_node, unique_ptr_node_t& new_root);
-        unique_ptr_node_t& rotate_to_left(unique_ptr_node_t& cur_node, unique_ptr_node_t& new_root);
-        unique_ptr_node_t& rotate_to_right(unique_ptr_node_t& cur_node, unique_ptr_node_t& new_root);
+        unique_ptr_node_t balance_subtree(unique_ptr_node_t& cur_node, unique_ptr_node_t& root);
+        void run_rotate_to_left(node_t<key_type>* x, unique_ptr_node_t& root);
+        void run_rotate_to_right(node_t<key_type>* cur_gparent, unique_ptr_node_t& root);
+        void rotate_to_left(unique_ptr_node_t&& cur_node, unique_ptr_node_t& root);
+        void rotate_to_right(unique_ptr_node_t&& cur_node, unique_ptr_node_t& root);
         unique_ptr_node_t insert(unique_ptr_node_t& cur_node,  const key_type& key);
-        unique_ptr_node_t emplace(unique_ptr_node_t& cur_node, key_type&& key);
-
 
         std::vector<key_type> store_inorder_walk() const;
         void graphviz_dump(graphviz::dump_graph_t& tree_dump) const ;
@@ -209,180 +210,179 @@ node_t<key_type>::safe_copy(const node_t<key_type>& origine_node) {
 
 template<typename key_type>
 typename node_t<key_type>::unique_ptr_node_t
-node_t<key_type>::insert(unique_ptr_node_t& cur_node, const key_type& key) {
-    if(!cur_node)
+node_t<key_type>::insert(unique_ptr_node_t& root, const key_type& key) {
+    if(!root)
         throw("Invalid ptr");
 
-    node_t<key_type>* parent = cur_node->parent_;
-    node_t<key_type>* cur = cur_node.get();
-    while (cur_node != nullptr) {
+    node_t<key_type>* parent = root->parent_;
+    node_t<key_type>* cur = root.get();
+    while (cur != nullptr) {
         parent = cur;
         if (key > cur->get_key()) {
             cur = cur->right_.get();
+            continue;
         }
         cur = cur->left_.get();
     }
 
     unique_ptr_node_t new_root = nullptr;
     if (key < parent->get_key()) {
-        cur->left_ = std::make_unique<node_t<key_type>>(key);
-        cur->left_->set_color(node_col::RED_);
-        if (cur->left_->parent_->parent_ == nullptr) {
-            return std::move(cur_node);
+        parent->left_ = std::make_unique<node_t<key_type>>(key);
+        parent->left_->parent_ = parent;
+        parent->left_->set_color(node_col::RED_);
+        if (parent->left_->parent_->parent_ == nullptr) {
+            return std::move(root);//TODO: shit
         }
-        return balance_subtree(cur->left_, new_root);
+        return balance_subtree(parent->left_, root);
     } 
     else {
-        cur->right_ = std::make_unique<node_t<key_type>>(key);
-        cur->left_->set_color(node_col::RED_);
-        if (cur->right_->parent_->parent_ == nullptr) {
-            return std::move(cur_node);
+        parent->right_ = std::make_unique<node_t<key_type>>(key);
+        parent->right_->parent_ = parent;
+        parent->right_->set_color(node_col::RED_);
+        if (parent->right_->parent_->parent_ == nullptr) {
+            return std::move(root);
         }
-        return balance_subtree(cur->right_, new_root);
+        return balance_subtree(parent->right_, root);
     }
-    //TODO: case with return before balancing
-    // new_node->balance_subtree(new_node, new_root);
-    // root_ = std::move(new_root);
-    // root_->set_parent(nullptr);
-
-    // return balance_subtree(new_node, new_root);
 }
-
-//TODO: emplace
-// template<typename key_type>
-// typename node_t<key_type>::unique_ptr_node_t
-// node_t<key_type>::emplace(unique_ptr_node_t& cur_node, key_type&& key) {
-//     if(!cur_node)
-//         throw("Invalid ptr");
-
-//     if (cur_node->key_ < key) {
-//         if (cur_node->right_ != nullptr) {
-//             auto new_node = emplace(cur_node->right_, std::forward<key_type>(key));
-//             std::swap(cur_node->right_, new_node);
-//         }
-//         else
-//             cur_node->right_ = std::make_unique<node_t<key_type>>(std::forward<key_type>(key));
-
-//         cur_node->right_->parent_ = cur_node.get();
-//     }
-//     else if (cur_node->key_ > key) {
-//         if (cur_node->left_ != nullptr) {
-//             cur_node->left_ = emplace(cur_node->left_, std::forward<key_type>(key));
-//         }
-//         else
-//             cur_node->left_ = std::make_unique<node_t<key_type>>(std::forward<key_type>(key));
-
-//         cur_node->left_->parent_ = cur_node.get();
-//     }
-
-//     change_height(cur_node);
-//     change_size(cur_node);
-
-//     return balance_subtree(cur_node, key);
-// }
 
 //----------------------------ROTATES------------------------------------------------------
 
 template<typename key_type>
 typename node_t<key_type>::unique_ptr_node_t
-node_t<key_type>::balance_subtree(unique_ptr_node_t& cur_node, unique_ptr_node_t& new_root) {
-    //We can nor be here with root
-    node_t<key_type>* node_par = cur_node->parent_;
-    while(cur_node->parent_->color_ == node_col::RED_) {
-        if (cur_node->parent_ == cur_node->parent_->parent_->left_.get()) {
-            auto& tmp_node = cur_node->parent_->parent_->right_;
-            if (tmp_node->color_ == node_col::RED_) {
-                cur_node->parent_->color_ = node_col::BLACK_;
-                tmp_node->color_ = node_col::BLACK_;
-                cur_node->color_ = node_col::RED_;
-                cur_node->parent_ = cur_node->parent_->parent_;    
-            }
-            else {
-                if (cur_node == cur_node->parent_->right_) {
-                    cur_node = std::unique_ptr<node_t<key_type>>(cur_node->parent_);
-                    cur_node = std::move(cur_node->rotate_to_left(cur_node, new_root));
+node_t<key_type>::balance_subtree(unique_ptr_node_t& cur, unique_ptr_node_t& root) {
+    auto cur_parent = cur->parent_;
+    while (cur_parent && cur_parent->color_ == node_col::RED_) {
+        auto cur_gparent = cur_parent->parent_;
+        if (cur_parent == cur_gparent->left_.get()) {
+            auto uncle = cur_gparent->right_.get();
+            if (uncle && uncle->color_ == node_col::RED_) {
+                cur_parent->color_ = node_col::BLACK_;
+                uncle->color_ = node_col::BLACK_;
+                cur_gparent->color_ = node_col::RED_;
+                cur_parent = cur_gparent->parent_;
+            } else {
+                if (cur == cur_parent->right_) {
+                    rotate_to_left(std::move(cur_gparent->left_), root);
+                    cur_parent = cur_gparent->left_.get();
                 }
-                cur_node->parent_->color_ = node_col::BLACK_;
-                cur_node->parent_->parent_->color_ = node_col::RED_;
-                auto parent_unique = std::unique_ptr<node_t<key_type>>(cur_node->parent_->parent_);
-                cur_node->parent_->parent_->rotate_to_right(parent_unique, new_root);
+                cur_parent->color_ = node_col::BLACK_;
+                cur_gparent->color_ = node_col::RED_;
+                run_rotate_to_right(cur_gparent, root);
+            }
+        } else {
+            auto uncle = cur_gparent->left_.get();
+            if (uncle && uncle->color_ == node_col::RED_) {
+                cur_parent->color_ = node_col::BLACK_;
+                uncle->color_ = node_col::BLACK_;
+                cur_gparent->color_ = node_col::RED_;
+                cur_parent = cur_gparent->parent_;
+            } else {
+                if (cur == cur_parent->left_) {
+                    rotate_to_right(std::move(cur_gparent->right_), root);
+                    cur_parent = cur_gparent->right_.get();
+                }
+                cur_parent->color_ = node_col::BLACK_;
+                cur_gparent->color_ = node_col::RED_;
+                run_rotate_to_left(cur_gparent, root);
             }
         }
-        else {
-            auto& tmp_node = cur_node->parent_->parent_->left_;
-            if (tmp_node->color_ == node_col::RED_) {
-                cur_node->parent_->color_ = node_col::BLACK_;
-                tmp_node->color_ = node_col::BLACK_;
-                cur_node->color_ = node_col::RED_;
-                cur_node->parent_ = cur_node->parent_->parent_;    
-            }   
-            else {
-                if (cur_node->parent_->left_ == cur_node) {
-                    cur_node = std::unique_ptr<node_t<key_type>>(cur_node->parent_);
-                    cur_node = std::move(cur_node->rotate_to_right(cur_node, new_root));
-                }
-                cur_node->parent_->color_ = node_col::BLACK_;
-                cur_node->parent_->parent_->color_ = node_col::RED_;
-                auto parent_unique = std::unique_ptr<node_t<key_type>>(cur_node->parent_->parent_);
-                cur_node->parent_->parent_->rotate_to_left(parent_unique, new_root);
-            }
-        }
+    }
+    root->color_ = node_col::BLACK_;
+    return std::move(root);
+}
+
+template<typename key_type>
+void
+node_t<key_type>::run_rotate_to_left(node_t<key_type>* cur_gparent, unique_ptr_node_t& root) {
+    auto cur_ggparent = cur_gparent->parent_;
+    if (!cur_ggparent) {
+        rotate_to_left(std::move(root), root);
+    } 
+    else if (cur_gparent == cur_ggparent->left_.get()) {
+        rotate_to_left(std::move(cur_ggparent->left_), root);
+    } 
+    else {
+        rotate_to_left(std::move(cur_ggparent->right_), root);
     }
 }
 
 template<typename key_type>
-typename node_t<key_type>::unique_ptr_node_t&
-node_t<key_type>::rotate_to_left(unique_ptr_node_t& cur_node, unique_ptr_node_t& new_root) {
-
-    if(!cur_node)
+void
+node_t<key_type>::rotate_to_left(unique_ptr_node_t&& x, unique_ptr_node_t& root) {
+    if(!x)
         throw("Invalid ptr");
-
-    auto x = cur_node->right_.get();
-    cur_node->right_ = std::move(cur_node->right_->left_);
     
-    if (x->left_ != nullptr) {
-        x->left_->parent_ = cur_node.get();
+    auto uncle = std::move(x->right_);
+    x->right_ = std::move(uncle->left_);
+    if (x->right_) {
+        x->right_->parent_ = x.get();
     }
-    x->parent_ = cur_node->parent_;
-    if (x->parent_ == nullptr) {
-        new_root = std::unique_ptr<node_t<key_type>>(x);
-    }
-    else if (cur_node == cur_node->parent_->left_) {
-        cur_node->parent_->left_ = std::unique_ptr<node_t<key_type>>(x);
-    }
+    uncle->parent_ = x->parent_;
+    auto xparent = x->parent_;
+    auto px = x.release();
+    if (!xparent) {
+        root = std::move(uncle);
+        root->left_ = std::unique_ptr<node_t<key_type>>(px);
+        root->left_->parent_ = root.get();
+    } 
+    else if (x == xparent->left_) {
+        xparent->left_ = std::move(uncle);
+        xparent->left_->left_ = std::unique_ptr<node_t<key_type>>(px);
+        xparent->left_->left_->parent_ = xparent->left_.get();
+    } 
     else {
-        cur_node->parent_->right_ = std::unique_ptr<node_t<key_type>>(x);
+        xparent->right_ = std::move(uncle);
+        xparent->right_->left_ = std::unique_ptr<node_t<key_type>>(px);
+        xparent->right_->left_->parent_ = xparent->right_.get();
     }
-    x->left_ = std::move(cur_node);
-    x->left_->parent_ = x;
-    return x->left_;
 }
 
 template<typename key_type>
-typename node_t<key_type>::unique_ptr_node_t&
-node_t<key_type>::rotate_to_right(unique_ptr_node_t& cur_node, unique_ptr_node_t& new_root) {
+void
+node_t<key_type>::run_rotate_to_right(node_t<key_type>* cur_gparent, unique_ptr_node_t& root) {
+    auto cur_ggparent = cur_gparent->parent_;
+    if (!cur_ggparent) {
+        rotate_to_left(std::move(root), root);
+    } 
+    else if (cur_gparent == cur_ggparent->left_.get()) {
+        rotate_to_right(std::move(cur_ggparent->left_), root);
+    } 
+    else {
+        rotate_to_right(std::move(cur_ggparent->right_), root);
+    }
+}
 
-    if(!cur_node)
+template<typename key_type>
+void
+node_t<key_type>::rotate_to_right(unique_ptr_node_t&& x,  unique_ptr_node_t& root) {
+
+    if(!x)
         throw("Invalid ptr");
 
-    auto x = cur_node->left_.get();
-    cur_node->left_ = std::move(x->right_->left_);
-    if (x->right_ != nullptr) {
-        x->right_->parent_ = cur_node.get();
+    auto y = std::move(x->left_);
+    x->left_ = std::move(y->right_);
+    if (x->left_) {
+        x->left_->parent_ = x.get();
     }
-    x->parent_ = cur_node->parent_;
-    if (x->parent_ == nullptr) {
-        new_root = std::unique_ptr<node_t<key_type>>(x);
+    y->parent_ = x->parent_;
+    auto xparent = x->parent_;
+    if (!xparent) {
+        auto px = x.release();
+        root = std::move(y);
+        root->right_ = std::unique_ptr<node_t<key_type>>(px);
+        root->right_->parent_ = root.get();
+    } else if (x == xparent->left_) {
+        auto px = x.release();
+        xparent->left_ = std::move(y);
+        xparent->left_->right_ = std::unique_ptr<node_t<key_type>>(px);
+        xparent->left_->right_->parent_ = xparent->left_.get();
+    } else {
+        auto px = x.release();
+        xparent->right_ = std::move(y);
+        xparent->right_->right_ = std::unique_ptr<node_t<key_type>>(px);
+        xparent->right_->right_->parent_ = xparent->right_.get();
     }
-    else if (cur_node == cur_node->parent_->right_) {
-        cur_node->parent_->right_ = std::unique_ptr<node_t<key_type>>(x);
-    }
-    else {
-        cur_node->parent_->left_ = std::unique_ptr<node_t<key_type>>(x);
-    }
-    x->right_ = std::move(cur_node);
-    x->right_->parent_ = x;
-    return x->right_;
 }
 
 //--------------------RANGES---------------------------------------------------------------

@@ -35,9 +35,7 @@ class tree_t final {
         tree_t<key_type>& operator= (const tree_t<key_type>& tree);
 
         void   insert(const key_type& key);
-        template<typename... Args>
-        
-        void   emplace(Args&&... args);
+                
         size_t range_query(const int l_bound, const int u_bound) const;
         size_t distance(const wrap_node_t<key_type>& l_node, const wrap_node_t<key_type>& u_node) const;
         wrap_node_t<key_type> upper_bound(const key_type& key) const;
@@ -95,7 +93,6 @@ void tree_t<key_type>::insert(const key_type& key) {
                                         std::make_unique<node_t<key_type>>(key);
         assert(tmp_root_ != nullptr);
         root_ = std::move(tmp_root_);
-        // root_->set_color(node_col::BLACK_);
         return;
     }
     // std::cout << "Here\n" << key << std::endl;
@@ -104,30 +101,6 @@ void tree_t<key_type>::insert(const key_type& key) {
 
     root_->set_parent(nullptr);
 }
-
-// template< typename key_type>
-// void tree_t<key_type>::balance(const key_type& key) {
-
-   
-// }
-
-
-//TODO: emplace
-// template< typename key_type>
-// template<typename... Args>
-// void tree_t<key_type>::emplace(Args&&... args) {
-
-//     key_type key = {std::move(args)...};
-//     if (root_ == nullptr) {
-//         std::unique_ptr<node_t<key_type>> tmp_root_ =
-//                          std::make_unique<node_t<key_type>>(std::forward<key_type>(key));
-//         assert(tmp_root_ != nullptr);
-//         root_ = std::move(tmp_root_);
-//     }
-//     root_ = root_->emplace(root_, std::forward<key_type>(key));
-
-//     root_->set_parent(nullptr);
-// }
 
 //-----------------------------------------------------------------------------------------
 
@@ -185,7 +158,7 @@ void tree_t<key_type>::graphviz_dump() const {
     graphviz::dump_graph_t tree_dump("../graph_lib/tree_dump.dot"); 
 
     root_->graphviz_dump(tree_dump);
-    tree_dump.run_graphviz("../graph_lib/tree_dump.dot", "../graph_lib");
+    tree_dump.run_graphviz("../graph_lib/tree_dump.dot", "../graph_lib/dump");
     tree_dump.close_input();
     // tree_dump.close_input();
 }
