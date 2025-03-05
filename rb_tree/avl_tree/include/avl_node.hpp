@@ -10,7 +10,7 @@ namespace avl {
 template <typename key_type = int>
 class node_t {
     public:
-        enum node_col {
+        enum node_col : int32_t {
             BLACK_ = 0,
             RED_   = 1,
         };

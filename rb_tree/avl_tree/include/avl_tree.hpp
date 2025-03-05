@@ -41,6 +41,7 @@ class tree_t final {
         node_t<key_type>* upper_bound(key_type key) const;
         node_t<key_type>* lower_bound(key_type key) const;
         std::vector<key_type> store_inorder_walk() const;
+        std::vector<typename node_t<key_type>::node_col> store_cl_inorder_walk() const;
         void graphviz_dump() const;
         
     private:
@@ -332,7 +333,7 @@ tree_t<key_type>::erase_impl(node_t<key_type>* cur) {
         } 
         else {
             transplant(y, y->right_);
-            y->right_->parent_ = y; 
+            y->right_ = cur->right_; 
             y->right_->parent_ = y; 
         }
         transplant(cur, y);
@@ -453,6 +454,34 @@ size_t tree_t<key_type>::distance(node_t<key_type>* l_node,
 }
 
 //-----------------------------------------------------------------------------------------
+
+template<typename key_type>
+std::vector<typename node_t<key_type>::node_col> tree_t<key_type>::store_cl_inorder_walk() const {
+    if (root_ == nullptr) {
+        return std::vector<typename node_t<key_type>::node_col> {};
+    }
+    std::vector<typename node_t<key_type>::node_col> storage;
+    std::stack<const node_t<key_type>*> node_stk;
+    const node_t<key_type>* cur_node = root_;
+
+    while (cur_node != tnil_ || !node_stk.empty()) {
+        if (!node_stk.empty()) {
+            cur_node = node_stk.top();
+            storage.push_back(cur_node->color_);
+            if (cur_node->right_ != tnil_)
+                cur_node = cur_node->right_;
+            else
+                cur_node = tnil_;
+
+            node_stk.pop();
+        }
+        while (cur_node != tnil_) {
+            node_stk.push(cur_node);
+            cur_node = cur_node->left_;
+        }
+    }
+    return storage;
+}
 
 template<typename key_type>
 std::vector<key_type> tree_t<key_type>::store_inorder_walk() const {
