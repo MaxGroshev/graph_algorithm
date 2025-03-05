@@ -9,6 +9,7 @@ template<typename key_type = int>
 class tree_t final {
     private:
         node_t<key_type>* root_ = nullptr;
+        node_t<key_type>* tnil_ = nullptr;
     public:
         tree_t(){};
         tree_t(key_type key) {
@@ -101,6 +102,7 @@ void tree_t<key_type>::insert(key_type key) {
         node_t<key_type>* tmp_root_ = new node_t<key_type> (key);
         assert(tmp_root_ != nullptr);
         root_ = tmp_root_;
+        return;
     }
     root_ = root_->insert(root_, key);
     root_->parent_ = nullptr;
@@ -110,7 +112,7 @@ template< typename key_type>
 void tree_t<key_type>::erase(const key_type& key) {
     root_ = root_->erase(root_, key);
 
-    root_->set_parent(nullptr);
+    // root_->set_parent(nullptr);
     root_->parent_ = nullptr;
 }
 

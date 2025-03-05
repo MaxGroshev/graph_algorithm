@@ -6,7 +6,8 @@ using namespace avl;
 
 class rotates : public ::testing::Test {
     protected:
-    avl::tree_t<int> tree;
+    tree_t<int> tree;
+    // node_t::node_col v = 1;;
     std::vector<int> correct_tree_left_case  = {-300, -200, -100, 0, 200, 500};
     std::vector<int> correct_tree_right_case = {-100, 200, 350, 400, 500, 600};
     std::vector<int> correct_tree_lr_case = {-200, -100, -75, -50, 200, 500};
@@ -27,6 +28,7 @@ TEST_F(rotates, insert_with_left_rotate) {
     tree.insert(-200);
     tree.insert(0);
     tree.insert(-300);
+    tree.graphviz_dump();
     std::vector<int> storage = tree.store_inorder_walk();
 
     // for (const auto& elem : storage) {

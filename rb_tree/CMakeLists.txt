@@ -26,7 +26,7 @@ add_subdirectory(graph_lib/)
 add_subdirectory(debug_utils/) #make compile only in debug mode
 add_subdirectory(avl_tree/)
 
-# add_subdirectory(./tests/)
+add_subdirectory(./tests/)
 if (TESTING_ENABLED)
 endif()
 
