@@ -30,6 +30,7 @@ class node_t {
 
     public:
         node_t(key_type key) : key_(key) {};
+        node_t(key_type key, node_col color) : key_(key), color_(color) {};
         node_t(const node_t<key_type>& node) : key_(node.key_), color_(node.color_) {
 
             node_t<key_type>* ret_node = safe_copy(&node);
@@ -124,7 +125,7 @@ template<typename key_type>
 node_t<key_type>* node_t<key_type>::safe_copy(const node_t<key_type>* origine_node) {
 
     node_t<key_type>* new_node = new node_t<key_type>(origine_node->key_,
-            origine_node->data_, origine_node->size_,origine_node->height_);
+            origine_node->color_);
 
     node_t<key_type>* root = new_node;
 
@@ -132,8 +133,7 @@ node_t<key_type>* node_t<key_type>::safe_copy(const node_t<key_type>* origine_no
         while (origine_node != nullptr) {
             if (new_node->left_ == nullptr && origine_node->left_ != nullptr) {
                 new_node->left_ = new node_t<key_type>(
-                                origine_node->left_->key_, origine_node->left_->data_,
-                                origine_node->left_->size_, origine_node->left_->height_);
+                                origine_node->left_->key_, origine_node->left_->color_);
                 new_node->left_->parent_ = new_node;
 
                 new_node     = new_node->left_;
@@ -141,8 +141,7 @@ node_t<key_type>* node_t<key_type>::safe_copy(const node_t<key_type>* origine_no
             }
             else if (new_node->right_ == nullptr && origine_node->right_ != nullptr) {
                 new_node->right_ = new node_t<key_type>(
-                                origine_node->right_->key_, origine_node->right_ ->data_,
-                                origine_node->right_->size_, origine_node->right_->height_);
+                                origine_node->right_->key_, origine_node->right_->color_);
                 new_node->right_->parent_ = new_node;
 
                 new_node = new_node->right_;
