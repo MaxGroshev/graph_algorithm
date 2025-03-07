@@ -35,7 +35,6 @@ class erase : public ::testing::Test {
 //----------------c-------------------------------------------------------------------------
 
 TEST_F(erase, min) {
-    node_t<int>::node_col c = node_t<int>::node_col::BLACK_;
     tree.graphviz_dump();
     tree.erase(-14);
     std::vector<int> storage = tree.store_inorder_walk();
