@@ -27,7 +27,7 @@ void node_t::print_node (const T* data_node, std::ofstream& graphviz_strm) {
                << "\", style = \""    << style << "\", fontcolor= \" " << fontcolor
                << "\", fontname = \"" << fontname << "\", color = \"" << color
                << "\", label = \"{key: "<< data_node->get_key() 
-               << "| color: "          << data_node->get_color()  <<"}\"]\n";
+               << "| color: "          << data_node  <<"}\"]\n";
 }
 
 //-----------------------------------------------------------------------------------------
