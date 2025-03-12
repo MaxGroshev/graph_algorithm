@@ -3,10 +3,10 @@
 //-----------------------------------------------------------------------------------------
 
 int main() {
-    using namespace avl_tree_ui;
+    using namespace rb_tree_ui;
 
     auto tree_start_time = time_control::chrono_cur_time ();
-    avl_tree_ui::run_set();
+    rb_tree_ui::run_set();
     auto tree_end_time = time_control::chrono_cur_time ();
 
     std::clog << "----------------------------------------------\n";
@@ -18,7 +18,7 @@ int main() {
 
 //-----------------------------------------------------------------------------------------
 
-void avl_tree_ui::run_set(std::istream & in_strm) {
+void rb_tree_ui::run_set(std::istream & in_strm) {
     std::set<int> enemy_set;
     char type_of_data = '\0';
     int data    = 0;
@@ -37,7 +37,7 @@ void avl_tree_ui::run_set(std::istream & in_strm) {
                 std::cout << 0 << ' ';
             }
             else {
-                std::cout << avl_tree_ui::range_query(enemy_set, l_bound, u_bound) << ' ';
+                std::cout << rb_tree_ui::range_query(enemy_set, l_bound, u_bound) << ' ';
             }
         }
         type_of_data = '\0';

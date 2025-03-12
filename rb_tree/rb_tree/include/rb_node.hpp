@@ -5,7 +5,7 @@
 
 //-----------------------------------------------------------------------------------------
 
-namespace avl {
+namespace rb {
 
 template <typename key_type = int>
 class node_t {
@@ -51,8 +51,8 @@ class node_t {
         node_t<key_type>& operator= (node_t<key_type>&& node);
         ~node_t() = default;
 
-        node_t<key_type>* balance_subtree(avl::node_t<key_type>* cur, avl::node_t<key_type>* root);
-        node_t<key_type>* insert(avl::node_t<key_type>* cur_node, key_type key);
+        node_t<key_type>* balance_subtree(rb::node_t<key_type>* cur, rb::node_t<key_type>* root);
+        node_t<key_type>* insert(rb::node_t<key_type>* cur_node, key_type key);
         size_t get_size(node_t<key_type>* node) const {
             if (node) return node->size_; else return 0;
         }
@@ -97,7 +97,7 @@ class node_t {
 
 //-----------------------------------------------------------------------------------------
 
-namespace avl {
+namespace rb {
 
 template<typename key_type>
 node_t<key_type>& node_t<key_type>::operator= (const node_t<key_type>& node) {

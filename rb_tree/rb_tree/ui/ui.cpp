@@ -2,10 +2,10 @@
 
 //-----------------------------------------------------------------------------------------
 
-namespace avl_tree_ui {
+namespace rb_tree_ui {
 
 void run_tree(std::istream & in_strm) {
-    avl::tree_t<int> pine;
+    rb::tree_t<int> pine;
     char type_of_data = '\0';
     int data    = 0;
     int l_bound = 0;
@@ -31,7 +31,7 @@ void run_tree(std::istream & in_strm) {
 }
 
 void run_set_and_tree(std::istream & in_strm) {
-    avl::tree_t<int> pine;
+    rb::tree_t<int> pine;
     std::set<int> enemy_set;
     char type_of_data = '\0';
     int data    = 0;
@@ -49,10 +49,10 @@ void run_set_and_tree(std::istream & in_strm) {
             in_strm >> l_bound >> u_bound;
 
             auto tree_start_time = chrono_cur_time ();
-            std::clog << "AVL tree res: ";
+            std::clog << "rb tree res: ";
             std::cout << pine.range_query(l_bound, u_bound) << "\n";
             auto tree_end_time = chrono_cur_time ();
-            std::clog << "AVL tree run time: " <<
+            std::clog << "rb tree run time: " <<
                                     (tree_end_time - tree_start_time) / 0.1ms  << '\n';
 
             auto set_start_time = chrono_cur_time ();

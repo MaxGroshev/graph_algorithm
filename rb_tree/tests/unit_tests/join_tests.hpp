@@ -1,13 +1,13 @@
 #pragma once
 
-using namespace avl;
+using namespace rb;
 
 //-----------------------------------------------------------------------------------------
 
 class join : public ::testing::Test {
     protected:
-    avl::tree_t<int> tree1;
-    avl::tree_t<int> tree2;
+    rb::tree_t<int> tree1;
+    rb::tree_t<int> tree2;
     std::vector<int> init1 = {2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 14};
     std::vector<int> init2 = {22, 24, 25, 26, 29, 30};
     void SetUp() {
@@ -23,8 +23,8 @@ class join : public ::testing::Test {
 //-----------------------------------------------------------------------------------------
 
 TEST_F(join, simp1) {
-    avl::tree_t<int> tree11;
-    avl::tree_t<int> tree22;
+    rb::tree_t<int> tree11;
+    rb::tree_t<int> tree22;
     std::vector<int> init11 = {1, 2, 3};
     std::vector<int> init22 = {5, 6, 7};
     for (const auto& key : init11) {
@@ -40,8 +40,8 @@ TEST_F(join, simp1) {
 }
 
 TEST_F(join, simp2) {
-    avl::tree_t<int> tree11;
-    avl::tree_t<int> tree22;
+    rb::tree_t<int> tree11;
+    rb::tree_t<int> tree22;
     std::vector<int> init11 = {10, 20, 30, 40, 50, 60};
     std::vector<int> init22 = {70, 80, 90};
     for (const auto& key : init11) {
@@ -57,8 +57,8 @@ TEST_F(join, simp2) {
 }
 
 TEST_F(join, simp3) {
-    avl::tree_t<int> tree11;
-    avl::tree_t<int> tree22;
+    rb::tree_t<int> tree11;
+    rb::tree_t<int> tree22;
     std::vector<int> init11 = {10, 20, 30, 40};
     std::vector<int> init22 = {70, 80, 90, 100, 110, 120, 130};
     for (const auto& key : init11) {

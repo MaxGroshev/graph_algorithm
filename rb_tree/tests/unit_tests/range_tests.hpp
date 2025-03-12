@@ -1,12 +1,12 @@
 #pragma once
 
-using namespace avl;
+using namespace rb;
 
 //-----------------------------------------------------------------------------------------
 
 class range : public ::testing::Test {
     protected:
-    avl::tree_t<int> tree;
+    rb::tree_t<int> tree;
     std::vector<int> correct_tree = {-14, 0, 3, 5, 11, 20, 21, 28, 42, 60};
     void SetUp() {
         std::array<int, 20> data = {5, 20, 21, -14, 0, 3, 42, 11, 45, -100,

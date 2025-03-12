@@ -1,9 +1,9 @@
 #pragma once
-#include "avl_node.hpp"
+#include "rb_node.hpp"
 
 //-----------------------------------------------------------------------------------------
 
-namespace avl {
+namespace rb {
 
 template<typename key_type = int>
 class tree_t final {
@@ -38,9 +38,9 @@ class tree_t final {
         void graphviz_dump() const;
         
         private:
-            void fix_insert(avl::node_t<key_type>* cur);
-            void erase_impl(avl::node_t<key_type>* cur);
-            void fix_erase(avl::node_t<key_type>* cur);
+            void fix_insert(rb::node_t<key_type>* cur);
+            void erase_impl(rb::node_t<key_type>* cur);
+            void fix_erase(rb::node_t<key_type>* cur);
             node_t<key_type>* rotate_to_left(node_t<key_type>* cur_node);
             node_t<key_type>* rotate_to_right(node_t<key_type>* cur_node);
             
@@ -292,7 +292,7 @@ void tree_t<key_type>::insert(key_type key) {
 
 template<typename key_type>
 void
-tree_t<key_type>::fix_insert(avl::node_t<key_type>* cur) {
+tree_t<key_type>::fix_insert(rb::node_t<key_type>* cur) {
     auto cur_parent = cur->parent_;
     while (cur_parent && cur_parent->color_ == node_t<key_type>::node_col::RED_) {
         auto cur_gparent = cur_parent->parent_;

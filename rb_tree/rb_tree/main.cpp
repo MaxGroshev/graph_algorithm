@@ -3,10 +3,10 @@
 //-----------------------------------------------------------------------------------------
 
 int main() {
-    using namespace avl_tree_ui;
+    using namespace rb_tree_ui;
 
     auto tree_start_time = time_control::chrono_cur_time ();
-    avl_tree_ui::run_tree();
+    rb_tree_ui::run_tree();
     auto tree_end_time = time_control::chrono_cur_time ();
 
     std::clog << "----------------------------------------------\n";

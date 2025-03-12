@@ -1,12 +1,12 @@
 #pragma once
 
-using namespace avl;
+using namespace rb;
 
 //-----------------------------------------------------------------------------------------
 
 class big_five : public ::testing::Test {
     protected:
-    avl::tree_t<int> tree;
+    rb::tree_t<int> tree;
     std::vector<int> correct_tree = {-14, 0, 3, 5, 11, 20, 21, 28, 42, 60};
     void SetUp() {
         std::array<int, 10> data = {5, 20, 21, -14, 0, 3, 42, 11, 60, 28};
@@ -28,11 +28,6 @@ TEST_F(big_five, copy_constructor_test) {
     tree_t<int> pine {tree};
     std::vector<int> tree_storage = tree.store_inorder_walk();
     std::vector<int> pine_storage = pine.store_inorder_walk();
-
-//     for (const auto & elem : pine_storage)
-//         std::cout << elem << ' ';
-//
-//     std::cout << "\n\n\n\n";
 
     ASSERT_TRUE(tree_storage == correct_tree);
     ASSERT_TRUE(pine_storage == correct_tree);

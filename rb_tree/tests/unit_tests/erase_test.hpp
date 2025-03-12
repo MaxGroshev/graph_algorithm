@@ -1,13 +1,13 @@
 #pragma once
 
-using namespace avl;
+using namespace rb;
 using n_col = node_t<int>::node_col;
 
 //-----------------------------------------------------------------------------------------
 
 class erase : public ::testing::Test {
     protected:
-    avl::tree_t<int> tree;
+    rb::tree_t<int> tree;
     std::vector<int> data = {-14, 0, 3, 5, 11, 20, 21, 28, 42, 60};
     
     std::vector<int> correct_tree_min = { 0, 3, 5, 11, 20, 21, 28, 42, 60};

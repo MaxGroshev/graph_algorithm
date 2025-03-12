@@ -7,11 +7,11 @@
 #include "graphviz.h"
 #include "debug_utils.hpp"
 #include "time_control.hpp"
-#include "avl_tree.hpp"
+#include "rb_tree.hpp"
 
 //-----------------------------------------------------------------------------------------
 
-namespace avl_tree_ui {
+namespace rb_tree_ui {
 
 using namespace time_control;
 

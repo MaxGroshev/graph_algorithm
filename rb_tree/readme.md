@@ -1,23 +1,16 @@
-# AVL tree
+# rb tree
 - This program helps to find ranges of elements during the O(log(n)), where n- number of elements
 
 Required programs:
 
 -  Cmake version  3.21
 
-
-# Install and run
-```
-> git clone git@github.com:MaxGroshev/avl_tree.git
-> mkdir build
-> cd build
-```
-#### How to run my_avl_tree?
+#### How to run my_rb_tree?
 
 ```
 > cmake ..
 > make
-> /avl_tree/avl_tree
+> /rb_tree/rb_tree
 
 ```
 
@@ -26,7 +19,7 @@ Required programs:
 ```
 > cmake ..
 > make
-> /avl_tree/set
+> /rb_tree/set
 
 ```
 
@@ -76,17 +69,17 @@ Required programs:
 - insert, search runs during O(log(n))
 
 <p align="center">
-  <img width="600" height="520" src="https://github.com/MaxGroshev/avl_tree/blob/master/efficiency_comp/tree_d1.png">
+  <img width="600" height="520" src="https://github.com/MaxGroshev/rb_tree/blob/master/efficiency_comp/tree_d1.png">
 </p>
 
 ## Efficiency comparison with std:set
 
 <p align="center">
-  <img width="600" height="400" src="https://github.com/MaxGroshev/avl_tree/blob/master/efficiency_comp/start_graph.png">
+  <img width="600" height="400" src="https://github.com/MaxGroshev/rb_tree/blob/master/efficiency_comp/start_graph.png">
 </p>
 
 <p align="center">
-  <img width="600" height="400" src="https://github.com/MaxGroshev/avl_tree/blob/master/efficiency_comp/graph.png">
+  <img width="600" height="400" src="https://github.com/MaxGroshev/rb_tree/blob/master/efficiency_comp/graph.png">
 </p>
 
 ---

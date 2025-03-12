@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 #-----------------------------------------------------------------------------------------
 
-project(avl_tree)
+project(rb_tree)
 
 #-----------------------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ endif ()
 
 add_subdirectory(graph_lib/)
 add_subdirectory(debug_utils/) #make compile only in debug mode
-add_subdirectory(avl_tree/)
+add_subdirectory(rb_tree/)
 
 add_subdirectory(./tests/)
 if (TESTING_ENABLED)

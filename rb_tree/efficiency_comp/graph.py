@@ -7,7 +7,7 @@ import matplotlib.ticker as ticker
 
 whole_data    = []
 num_of_elems  = []
-avl_tree_time = []
+rb_tree_time = []
 set_time      = []
 
 with open('start_data.txt') as file:
@@ -16,7 +16,7 @@ with open('start_data.txt') as file:
 
 for x in (whole_data):
     num_of_elems.append(x[0])
-    avl_tree_time.append(x[1])
+    rb_tree_time.append(x[1])
     set_time.append(x[2])
 
 #--------------------------------------------PIC_SETTINGS------------------------------------------------------------
@@ -41,7 +41,7 @@ ax.grid(which = 'minor', color = 'gray', linestyle = ':')
 ax.minorticks_on ()
 
 
-ax.plot(num_of_elems, avl_tree_time, color = '#21421E', linewidth = 3, label = 'AVL tree t(n)', marker = 'D', markevery = 0.005, mfc = '#21421E')
+ax.plot(num_of_elems, rb_tree_time, color = '#21421E', linewidth = 3, label = 'rb tree t(n)', marker = 'D', markevery = 0.005, mfc = '#21421E')
 ax.plot(num_of_elems, set_time, color = '#E32636', linewidth = 3, label = 'Set t(n)', marker = 'D', markevery = 0.05, mfc = '#E32636')
 
 
