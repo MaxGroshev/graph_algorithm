@@ -73,12 +73,24 @@ class node_t {
         size_t get_black_height(node_t<key_type>* cur) {
             size_t res = 0;
             while (cur->left_ != nullptr ) { //hmmm
-                cur = cur->right_;
+                cur = cur->left_;
                 if (cur->color_ == node_col::BLACK_) {
                     res++;
                 }
             }
             return res;
+        }
+        bool on_left_br() { return this == parent_->left_;};
+        bool on_right_br() { return this == parent_->right_;};
+
+        node_t<key_type>* get_brother() {
+            if (parent_ == nullptr) {
+                return nullptr;
+            }
+            if (on_left_br()) {
+                return parent_->right_;
+            }
+            return parent_->left_;
         }
     };
 }

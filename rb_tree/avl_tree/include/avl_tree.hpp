@@ -8,16 +8,14 @@ namespace avl {
 template<typename key_type = int>
 class tree_t final {
     private:
-        node_t<key_type>* root_ = nullptr;
-        node_t<key_type>* tnil_ = nullptr;
+    node_t<key_type>* root_ = nullptr;
     public:
         tree_t(){
-            tnil_ = new node_t(key_type{}); //tmp probably inher
-            root_ = tnil_;
+            // root_ = new node_t(key_type{}); //tmp probably inher
+            // root_ = nullptr;
         };
         tree_t(const tree_t<key_type>& tree) {
             root_ = new node_t<key_type> (*(tree.root_));
-            tnil_ = new node_t<key_type> (*(tree.tnil_));
             if (root_->left_ != nullptr)
                 root_->left_->parent_ = root_;
             if (root_->right_ != nullptr)
@@ -25,9 +23,7 @@ class tree_t final {
         };
         tree_t(tree_t<key_type>&& tree) noexcept {
             root_ = tree.root_;
-            tnil_ = tree.tnil_;
             tree.root_ = nullptr;
-            tree.tnil_ = nullptr;
             assert(root_ != nullptr);
         };
         tree_t<key_type>& operator= (const tree_t<key_type>& tree);
@@ -53,45 +49,31 @@ class tree_t final {
         
         
         node_t<key_type>* tree_minimum(node_t<key_type>* cur) {
-            while (cur->left_ != tnil_) {
+            while (cur->left_ != nullptr) {
                 cur = cur->left_;
             }
             return cur;
         }
         
         node_t<key_type>* tree_maximum(node_t<key_type>* cur) {
-            while (cur->right_ != tnil_) {
+            while (cur->right_ != nullptr) {
                 cur = cur->right_;
             }
             return cur;
         }
         node_t<key_type>* tree_successor(node_t<key_type>* cur) {
-            if (cur->right_ != tnil_) {
-                return tree_minimum(cur->right_);
+            node_t<key_type>* tmp = cur;
+
+            while (tmp->left_ != nullptr) {
+                tmp = tmp->left_;
             }
-            auto cur_parent = cur->parent_;
-            while (cur_parent != tnil_ && cur == cur_parent->right_) {
-                cur = cur_parent->right_;
-                cur_parent = cur_parent->parent_;
-            }
-            return cur_parent;
+        
+            return tmp;
         }
-        void transplant(node_t<key_type>* u, node_t<key_type>* v) {
-            if (u->parent_ == nullptr) {
-                root_ = v;
-            }
-            else if (u == u->parent_->left_) {
-                u->parent_->left_ = v;
-            }
-            else {
-                u->parent_->right_ = v;
-            }
-            v->parent_ = u->parent_;
-            return;
-        }
+
         size_t get_black_height(node_t<key_type>* cur, node_t<key_type>* tnil) {
             size_t res = 1;
-            while (cur != tnil_) {
+            while (cur != nullptr) {
                 if (cur->key_ < cur->key_) {
                     cur = cur->left_;
                 } 
@@ -104,13 +86,27 @@ class tree_t final {
             }
             return res;
         }
+        node_t<key_type>* get_replace(node_t<key_type>* x) {
+            if (x->left_ != nullptr && x->right_ != nullptr) {
+                return tree_successor(x->right_);
+            }
+            if (x->left_ == nullptr && x->right_ == nullptr) {
+                return nullptr;
+            }
+            if (x->left_ != nullptr) {
+                return x->left_;
+            }
+            else {
+                return x->right_;
+            }
+        }
 
     //     function joinRightRB(TL, k, TR):
-    //     if (TL.color=black) and (TL.blackHeight=TR.blackHeight):
+    //     if (TL.color=node_t<key_type>::node_col::BLACK_) && (TL.blackHeight=TR.blackHeight):
     //         return Node(TL,⟨k,red⟩,TR)
     //     T'=Node(TL.left,⟨TL.key,TL.color⟩,joinRightRB(TL.right,k,TR))
-    //     if (TL.color=black) and (T'.right.color=T'.right.right.color=red):
-    //         T'.right.right.color=black;
+    //     if (TL.color=node_t<key_type>::node_col::BLACK_) && (T'.right.color=T'.right.right.color=node_t<key_type>::node_col::RED_):
+    //         T'.right.right.color=node_t<key_type>::node_col::BLACK_;
     //         return rotateLeft(T')
     //     return T' /* T''[recte T'] */
     
@@ -171,18 +167,14 @@ class tree_t final {
         }
 
     public:
-        void join(tree_t& t_l, tree_t& t_r1, const key_type& key) {
-            t_r1.tnil_ = t_l.tnil_;
-            tree_t t_r{t_r1};
+        void join(tree_t& t_l, tree_t& t_r, const key_type& key) {
             if (t_l.root_->get_black_height(t_l.root_) > t_r.root_->get_black_height(t_r.root_)) {
                 auto node = join_right(t_l.root_, t_r.root_, key);
                 if (node->color_ ==  node_t<key_type>::node_col::RED_ && 
                     node->right_->color_ ==  node_t<key_type>::node_col::BLACK_) {
                         node->color_ =  node_t<key_type>::node_col::BLACK_; 
                 }
-                // t_l.root_ = nullptr;
-                // t_l.tnil_ = nullptr;
-                t_r.tnil_ = nullptr;
+                t_l.root_ = nullptr;
                 t_r.root_ = nullptr;
                 root_ = node;
                 return;
@@ -193,9 +185,6 @@ class tree_t final {
                     node->left_->color_ ==  node_t<key_type>::node_col::BLACK_) {
                         node->color_ =  node_t<key_type>::node_col::BLACK_; 
                 }
-                // t_l.root_ = nullptr;
-                // t_l.tnil_ = nullptr;
-                t_r.tnil_ = nullptr;
                 t_r.root_ = nullptr;
                 root_ = node;
                 return;
@@ -208,7 +197,6 @@ class tree_t final {
                 tmp_root->left_->parent_ = tmp_root;
                 tmp_root->right_->parent_ = tmp_root;
                 root_ = tmp_root;
-                t_r.tnil_ = nullptr;
                 t_r.root_ = nullptr;
                 return;
             }
@@ -219,10 +207,10 @@ class tree_t final {
             tmp_root->left_->parent_ = tmp_root;
             tmp_root->right_->parent_ = tmp_root;
             root_ = tmp_root;
-            t_r.tnil_ = nullptr;
             t_r.root_ = nullptr;
             return;
         }
+        
 };
 
 
@@ -241,16 +229,15 @@ tree_t<key_type>::~tree_t<key_type> () {
         front = nodes.top();
         nodes.pop();
         if (front != nullptr) { //case of deleteing after move constr
-            if (front->left_ != tnil_) {
+            if (front->left_ != nullptr) {
                 nodes.push(front->left_);
             }
-            if (front->right_ != tnil_) {
+            if (front->right_ != nullptr) {
                 nodes.push(front->right_);
             }
         }
         delete front;
     }
-    delete tnil_;
 }
 
 template<typename key_type>
@@ -282,86 +269,83 @@ tree_t<key_type>&tree_t<key_type>::operator= (tree_t<key_type>&& tree) {
 template<typename key_type>
 void tree_t<key_type>::insert(key_type key) {
 
-    auto new_node =  new node_t<key_type>(key);
-    new_node->left_ = tnil_;
-    new_node->right_= tnil_;
-    new_node->color_ = node_t<key_type>::node_col::RED_;
-
-    node_t<key_type>* parent = nullptr;
-    node_t<key_type>* cur = root_;
-    while (cur != tnil_) {
-        parent = cur;
-        if (new_node->key_ < cur->key_) {
-            cur = cur->left_;
-        } 
-        else {
-            cur = cur->right_;
-        }
+    if (root_ == nullptr) {
+        node_t<key_type>* tmp_root_ = new node_t<key_type> (key);
+        assert(tmp_root_ != nullptr);
+        root_ = tmp_root_;
+        return;
     }
-  
-    new_node->parent_ = parent;
-    if (parent == nullptr) {
-        root_ = new_node;
-    } 
-    else if (new_node->key_ < parent->key_) {
+
+    node_t<key_type>* parent = root_->parent_;
+    node_t<key_type>* cur = root_;
+    while (cur != nullptr) {
+        parent = cur;
+        if (key > cur->get_key()) {
+            cur = cur->right_;
+            continue;
+        }
+        cur = cur->left_;
+    }
+
+    auto new_node =  new node_t<key_type>(key);
+    if (key < parent->get_key()) {
         parent->left_ = new_node;
+        parent->left_->parent_ = parent;
+        parent->left_->color_ = node_t<key_type>::node_col::RED_;
+        if (parent->left_->parent_->parent_ == nullptr) {
+            return;
+        }
+        return fix_insert(parent->left_);
     } 
     else {
         parent->right_ = new_node;
+        parent->right_->parent_ = parent;
+        parent->right_->color_ = node_t<key_type>::node_col::RED_;
+        if (parent->right_->parent_->parent_ == nullptr) {
+            return;
+        }
+        return fix_insert(parent->right_);
     }
-
-    if (new_node->parent_ == nullptr) {
-        new_node->color_ = node_t<key_type>::node_col::BLACK_;
-        return;
-    }
-    if (new_node->parent_->parent_ == nullptr) {
-        return;
-    }
-
-    fix_insert(new_node);
     return;
 }
 
 template<typename key_type>
 void
 tree_t<key_type>::fix_insert(avl::node_t<key_type>* cur) {
-    avl::node_t<key_type>*  node_uncle;
-    while (cur != root_ && cur->parent_->color_ == node_t<key_type>::node_col::RED_) {
-        if (cur->parent_ == cur->parent_->parent_->right_) {
-            node_uncle = cur->parent_->parent_->left_;
-            if (node_uncle->color_ == node_t<key_type>::node_col::RED_) {
-                node_uncle->color_ = node_t<key_type>::node_col::BLACK_;
-                cur->parent_->color_ = node_t<key_type>::node_col::BLACK_;
-                cur->parent_->parent_->color_ = node_t<key_type>::node_col::RED_;
-                cur = cur->parent_->parent_;
-            } 
-            else {
-                if (cur == cur->parent_->left_) {
-                    cur = cur->parent_;
-                    rotate_to_right(cur);
+    auto cur_parent = cur->parent_;
+    while (cur_parent && cur_parent->color_ == node_t<key_type>::node_col::RED_) {
+        auto cur_gparent = cur_parent->parent_;
+        if (cur_parent == cur_gparent->left_) {
+            auto uncle = cur_gparent->right_;
+            if (uncle && uncle->color_ == node_t<key_type>::node_col::RED_) {
+                cur_parent->color_ = node_t<key_type>::node_col::BLACK_;
+                uncle->color_ = node_t<key_type>::node_col::BLACK_;
+                cur_gparent->color_ = node_t<key_type>::node_col::RED_;
+                cur_parent = cur_gparent->parent_;
+            } else {
+                if (cur == cur_parent->right_) {
+                    rotate_to_left(cur_gparent->left_);
+                    cur_parent = cur_gparent->left_;
                 }
-                cur->parent_->color_ = node_t<key_type>::node_col::BLACK_;
-                cur->parent_->parent_->color_ = node_t<key_type>::node_col::RED_;
-                rotate_to_left(cur->parent_->parent_);
+                cur_parent->color_ = node_t<key_type>::node_col::BLACK_;
+                cur_gparent->color_ = node_t<key_type>::node_col::RED_;
+                rotate_to_right(cur_gparent);
             }
-        }
-        else {
-            node_uncle = cur->parent_->parent_->right_;
-
-            if (node_uncle->color_ == node_t<key_type>::node_col::RED_) {
-                node_uncle->color_ = node_t<key_type>::node_col::BLACK_;
-                cur->parent_->color_ = node_t<key_type>::node_col::BLACK_;
-                cur->parent_->parent_->color_ = node_t<key_type>::node_col::RED_;
-                cur = cur->parent_->parent_;
-            } 
-            else {
-                if (cur == cur->parent_->right_) {
-                    cur = cur->parent_;
-                    rotate_to_left(cur);
+        } else {
+            auto uncle = cur_gparent->left_;
+            if (uncle && uncle->color_ == node_t<key_type>::node_col::RED_) {
+                cur_parent->color_ = node_t<key_type>::node_col::BLACK_;
+                uncle->color_ = node_t<key_type>::node_col::BLACK_;
+                cur_gparent->color_ = node_t<key_type>::node_col::RED_;
+                cur_parent = cur_gparent->parent_;
+            } else {
+                if (cur == cur_parent->left_) {
+                    rotate_to_right(cur_gparent->right_);
+                    cur_parent = cur_gparent->right_;
                 }
-                cur->parent_->color_ = node_t<key_type>::node_col::BLACK_;
-                cur->parent_->parent_->color_ = node_t<key_type>::node_col::RED_;
-                rotate_to_right(cur->parent_->parent_);
+                cur_parent->color_ = node_t<key_type>::node_col::BLACK_;
+                cur_gparent->color_ = node_t<key_type>::node_col::RED_;
+                rotate_to_left(cur_gparent);
             }
         }
     }
@@ -377,7 +361,7 @@ tree_t<key_type>::rotate_to_left(node_t<key_type>* cur) {
 
     node_t<key_type>* y = cur->right_;
     cur->right_ = y->left_;
-    if (y->left_ != tnil_) {
+    if (y->left_ != nullptr) {
         y->left_->parent_ = cur;
     }
     y->parent_ = cur->parent_;
@@ -402,7 +386,7 @@ tree_t<key_type>::rotate_to_right(node_t<key_type>* cur) {
 
     node_t<key_type>* y = cur->left_;
     cur->left_ = y->right_;
-    if (y->right_ != tnil_) {
+    if (y->right_ != nullptr) {
         y->right_->parent_ = cur;
     }
     y->parent_ = cur->parent_;
@@ -442,110 +426,127 @@ void tree_t<key_type>::erase(const key_type& key) {
 template<typename key_type>
 void
 tree_t<key_type>::erase_impl(node_t<key_type>* cur) {
-    if (cur == tnil_) {
-        return;
-    }
+    node_t<key_type>* repl = get_replace(cur);
+    node_t<key_type>* parent = cur->parent_;
 
-    node_t<key_type>* y = cur;
-    node_t<key_type>* x = nullptr;
-    auto y_original_color = y->color_;
-
-    if (cur->left_ == tnil_) {
-        x = cur->right_;
-        transplant(cur, cur->right_);
-    } 
-    else if (cur->right_ == tnil_) {
-        x = cur->left_;
-        transplant(cur, cur->left_);
-    } 
-    else {
-        y = tree_minimum(cur->right_);
-        y_original_color = y->color_;
-        x = y->right_;
-
-        if (y->parent_ == cur) {
-            x->parent_ = y; 
+    if (repl == nullptr) {
+        if (cur == root_) {
+            root_ = nullptr;
         } 
         else {
-            transplant(y, y->right_);
-            y->right_ = cur->right_; 
-            y->right_->parent_ = y; 
+            if ((repl == nullptr ||  repl->color_ == node_t<key_type>::node_col::BLACK_) 
+                && (cur->color_ == node_t<key_type>::node_col::BLACK_)) {
+                fix_erase(cur);
+            } 
+            else {
+                if (cur->get_brother() != nullptr) {
+                    cur->get_brother()->color_ = node_t<key_type>::node_col::RED_;
+                }
+            } 
+            if (cur->on_left_br()) {
+                parent->left_ = nullptr;
+            }
+            else {
+                parent->right_ = nullptr;
+            }
         }
-        transplant(cur, y);
-        y->left_ = cur->left_;
-        y->left_->parent_ = y;
-        y->color_ = cur->color_;
+        delete cur;
+        return;
     }
-
-    delete cur;
-    if (y_original_color == node_t<key_type>::node_col::BLACK_) {
-        fix_erase(x);
+ 
+    if (cur->left_ == nullptr ||  cur->right_ == nullptr) {
+        if (cur == root_) {
+            cur->key_ = repl->key_;
+            cur->left_ = cur->right_ = nullptr;
+            delete repl;
+        } 
+        else {
+            if (cur->on_left_br()) {
+                parent->left_ = repl;
+            } 
+            else {
+                parent->right_ = repl;
+            }
+            delete cur;
+            repl->parent_ = parent;
+            if ((repl == nullptr ||  repl->color_ == node_t<key_type>::node_col::BLACK_) 
+                && (cur->color_ == node_t<key_type>::node_col::BLACK_)) {
+                fix_erase(repl);
+            } 
+            else {
+                repl->color_ = node_t<key_type>::node_col::BLACK_;
+            }
+        }
+        return;
     }
-
-    return;
+ 
+    std::swap(repl->key_, cur->key_);
+    erase_impl(repl);
 }
 
 
 template<typename key_type>
 void
 tree_t<key_type>::fix_erase(node_t<key_type>* x) {
-    // node_t<key_type>* tmp = nullptr;
-    while (x != root_ && x->color_ == node_t<key_type>::node_col::BLACK_) {
-        if (x == x->parent_->left_) {
-            auto w = x->parent_->right_;
-            if (w->color_ == node_t<key_type>::node_col::RED_) {
-                w->color_ = node_t<key_type>::node_col::BLACK_;
-                x->parent_->color_ = node_t<key_type>::node_col::RED_;
-                rotate_to_left(x->parent_);
-                w = x->parent_->right_;
+    if (x == root_)
+	    return;
+
+	node_t<key_type>* brother = x->get_brother();
+    node_t<key_type>* parent = x->parent_;
+	if (brother == nullptr) {
+	    fix_erase(parent);
+	} 
+    else {
+        if (brother->color_ == node_t<key_type>::node_col::RED_) {
+            parent->color_ = node_t<key_type>::node_col::RED_;
+            brother->color_ = node_t<key_type>::node_col::BLACK_;
+            if (brother->on_left_br()) {
+                rotate_to_right(parent);
+            } 
+            else {
+                rotate_to_left(parent);
             }
-            if ( w->left_->color_ == node_t<key_type>::node_col::BLACK_ &&
-                w->right_->color_ == node_t<key_type>::node_col::BLACK_) {
-                w->color_ = node_t<key_type>::node_col::RED_;
-                x = x->parent_;
-            } else {
-                if (w->right_->color_ == node_t<key_type>::node_col::BLACK_) {
-                    w->left_->color_= node_t<key_type>::node_col::BLACK_;
-                    w->color_= node_t<key_type>::node_col::RED_;
-                    rotate_to_right(w);
-                    w = x->parent_->right_;
+            fix_erase(x);
+        } 
+        else {
+            if (brother->left_ != nullptr && brother->left_->color_ == node_t<key_type>::node_col::RED_) {
+                if (brother->on_left_br()) {
+                    brother->left_->color_ = brother->color_;
+                    brother->color_ = parent->color_;
+                    rotate_to_right(parent);
+                } 
+                else {
+                    brother->left_->color_ = parent->color_;
+                    rotate_to_right(brother);
+                    rotate_to_left(parent);
                 }
-                w->color_= x->parent_->color_;
-                x->parent_->color_= node_t<key_type>::node_col::BLACK_;
-                w->right_->color_= node_t<key_type>::node_col::BLACK_;
-                rotate_to_left(x->parent_);
-                x = root_;
-            }
-        } else {
-            auto w = x->parent_->left_;
-            if (w->color_== node_t<key_type>::node_col::RED_) {
-                w->color_= node_t<key_type>::node_col::BLACK_;
-                x->parent_->color_= node_t<key_type>::node_col::RED_;
-                rotate_to_right(x->parent_);
-                w = x->parent_->left_;
-            }
-            if (w->right_->color_ == node_t<key_type>::node_col::BLACK_ &&
-                w->left_->color_ == node_t<key_type>::node_col::BLACK_) {
-                w->color_ = node_t<key_type>::node_col::RED_;
-                x = x->parent_;
-            } else {
-                if (w->left_->color_ == node_t<key_type>::node_col::BLACK_) {
-                    w->right_->color_ = node_t<key_type>::node_col::BLACK_;
-                    w->color_ = node_t<key_type>::node_col::RED_;
-                    rotate_to_left(w);
-                    w = x->parent_->left_;
+                parent->color_ = node_t<key_type>::node_col::BLACK_;
+            } 
+            else if (brother->right_ != nullptr && brother->right_->color_ == node_t<key_type>::node_col::RED_) {
+                if (brother->on_left_br()) {
+                    brother->right_->color_ = parent->color_;
+                    rotate_to_left(brother);
+                    rotate_to_right(parent);
+                } else {
+                    brother->right_->color_ = brother->color_;
+                    brother->color_ = parent->color_;
+                    rotate_to_left(parent);
                 }
-                w->color_= x->parent_->color_;
-                x->parent_->color_ = node_t<key_type>::node_col::BLACK_;
-                w->left_->color_ = node_t<key_type>::node_col::BLACK_;
-                rotate_to_right(x->parent_);
-                x = root_;
+                parent->color_ = node_t<key_type>::node_col::BLACK_;
+            }
+            else {
+                brother->color_ = node_t<key_type>::node_col::RED_;
+                if (parent->color_ == node_t<key_type>::node_col::BLACK_) {
+                    fix_erase(parent);
+                }
+                else {
+                    parent->color_ = node_t<key_type>::node_col::BLACK_;
+                }
             }
         }
-    }
-    x->color_=node_t<key_type>::node_col::BLACK_;
-    return;
+	}
 }
+
 
 //-----------------------------------------------------------------------------------------
 
@@ -599,18 +600,18 @@ std::vector<typename node_t<key_type>::node_col> tree_t<key_type>::store_cl_inor
     std::stack<const node_t<key_type>*> node_stk;
     const node_t<key_type>* cur_node = root_;
 
-    while (cur_node != tnil_ || !node_stk.empty()) {
+    while (cur_node != nullptr || !node_stk.empty()) {
         if (!node_stk.empty()) {
             cur_node = node_stk.top();
             storage.push_back(cur_node->color_);
-            if (cur_node->right_ != tnil_)
+            if (cur_node->right_ != nullptr)
                 cur_node = cur_node->right_;
             else
-                cur_node = tnil_;
+                cur_node = nullptr;
 
             node_stk.pop();
         }
-        while (cur_node != tnil_) {
+        while (cur_node != nullptr) {
             node_stk.push(cur_node);
             cur_node = cur_node->left_;
         }
@@ -627,18 +628,18 @@ std::vector<key_type> tree_t<key_type>::store_inorder_walk() const {
     std::stack<const node_t<key_type>*> node_stk;
     const node_t<key_type>* cur_node = root_;
 
-    while (cur_node != tnil_ || !node_stk.empty()) {
+    while (cur_node != nullptr || !node_stk.empty()) {
         if (!node_stk.empty()) {
             cur_node = node_stk.top();
             storage.push_back(cur_node->key_);
-            if (cur_node->right_ != tnil_)
+            if (cur_node->right_ != nullptr)
                 cur_node = cur_node->right_;
             else
-                cur_node = tnil_;
+                cur_node = nullptr;
 
             node_stk.pop();
         }
-        while (cur_node != tnil_) {
+        while (cur_node != nullptr) {
             node_stk.push(cur_node);
             cur_node = cur_node->left_;
         }
@@ -649,7 +650,6 @@ std::vector<key_type> tree_t<key_type>::store_inorder_walk() const {
 template<typename key_type>
 void tree_t<key_type>::graphviz_dump() const {
     graphviz::dump_graph_t tree_dump("../graph_lib/tree_dump.dot"); 
-
     root_->graphviz_dump(tree_dump);
     tree_dump.run_graphviz("../graph_lib/tree_dump.dot", "../graph_lib/dump");
     tree_dump.close_input();
