@@ -67,21 +67,6 @@ class tree_t final {
                 return tmp;
             }
 
-            size_t get_black_height(node_t<key_type>* cur, node_t<key_type>* tnil) {
-                size_t res = 1;
-                while (cur != nullptr) {
-                    if (cur->key_ < cur->key_) {
-                        cur = cur->left_;
-                    } 
-                    else {
-                        cur = cur->right_;
-                    }
-                    if (cur->color_ == node_t<key_type>::node_col::BLACK_) {
-                        res++;
-                    }
-                }
-                return res;
-            }
             node_t<key_type>* get_replace(node_t<key_type>* x) {
                 if (x->left_ != nullptr && x->right_ != nullptr) {
                     return tree_successor(x->right_);
@@ -98,8 +83,8 @@ class tree_t final {
             }
         
             node_t<key_type>* join_right(node_t<key_type>* t_l_root, node_t<key_type>* t_r_root, const key_type& key) {
-                if (t_l_root->color_ == node_t<key_type>::node_col::BLACK_ &&
-                    (t_l_root->get_black_height(t_l_root) == t_r_root->get_black_height(t_r_root))) {
+                if ((t_l_root == nullptr || t_l_root->color_ == node_t<key_type>::node_col::BLACK_) &&
+                    (root_->get_black_height(t_l_root) == root_->get_black_height(t_r_root))) {
                         auto tmp_root = new node_t<key_type>(key, node_t<key_type>::node_col::RED_);
                         tmp_root->left_ = t_l_root;
                         tmp_root->right_ = t_r_root;
@@ -114,7 +99,7 @@ class tree_t final {
                 node->left_->parent_  = node;
                 node->right_->parent_ = node;
 
-                if (t_l_root->color_ == node_t<key_type>::node_col::BLACK_ &&
+                if ((t_l_root == nullptr || t_l_root->color_ == node_t<key_type>::node_col::BLACK_) &&
                     node->right_->color_ == node_t<key_type>::node_col::RED_ &&
                     node->right_->right_->color_ == node_t<key_type>::node_col::RED_) {
                         node->right_->right_->color_ = node_t<key_type>::node_col::BLACK_;
@@ -124,8 +109,8 @@ class tree_t final {
             }
 
             node_t<key_type>* join_left(node_t<key_type>* t_l_root, node_t<key_type>* t_r_root, const key_type& key) {
-                if (t_r_root->color_ == node_t<key_type>::node_col::BLACK_ &&
-                    t_l_root->get_black_height(t_l_root) == t_r_root->get_black_height(t_r_root)) {
+                if ((t_r_root == nullptr || t_r_root->color_ == node_t<key_type>::node_col::BLACK_) &&
+                root_->get_black_height(t_l_root) == root_->get_black_height(t_r_root)) {
                         auto tmp_root = new node_t<key_type>(key, node_t<key_type>::node_col::RED_);
                         tmp_root->left_ = t_l_root;
                         tmp_root->right_ = t_r_root;
@@ -140,7 +125,7 @@ class tree_t final {
                     node->left_->parent_  = node;
                     node->right_->parent_ = node;
 
-                if (t_r_root->color_ == node_t<key_type>::node_col::BLACK_ &&
+                if ((t_r_root == nullptr || t_r_root->color_ == node_t<key_type>::node_col::BLACK_) &&
                     node->left_->color_ == node_t<key_type>::node_col::RED_ &&
                     node->left_->left_->color_ == node_t<key_type>::node_col::RED_) {
                         node->left_->left_->color_ = node_t<key_type>::node_col::BLACK_;
@@ -149,48 +134,82 @@ class tree_t final {
                 return node;
             }
 
+            node_t<key_type>* join(node_t<key_type>* t_l_root, node_t<key_type>* t_r_root, const key_type& key) {
+                    if (root_->get_black_height(t_l_root) > root_->get_black_height(t_r_root)) {
+                        auto node = join_right(t_l_root, t_r_root, key);
+                        if (node->color_ ==  node_t<key_type>::node_col::RED_ && 
+                            node->right_->color_ ==  node_t<key_type>::node_col::BLACK_) {
+                                node->color_ =  node_t<key_type>::node_col::BLACK_; 
+                        }
+                        return node;
+                    }
+                    else if (root_->get_black_height(t_l_root) < root_->get_black_height(t_r_root)) {
+                        auto node = join_left(t_l_root, t_r_root, key);
+                        if (node->color_ ==  node_t<key_type>::node_col::RED_ && 
+                            node->left_->color_ ==  node_t<key_type>::node_col::BLACK_) {
+                                node->color_ =  node_t<key_type>::node_col::BLACK_; 
+                        }
+                        return node;
+                    }
+                    else if ((t_l_root == nullptr || t_l_root->color_ == node_t<key_type>::node_col::BLACK_) &&
+                             (t_l_root != nullptr && (t_l_root->right_ == nullptr || t_l_root->right_->color_ == node_t<key_type>::node_col::BLACK_))) {
+                        auto tmp_root = new node_t<key_type>(key, node_t<key_type>::node_col::RED_);
+                        tmp_root->left_ = t_l_root;
+                        tmp_root->right_ = t_r_root;
+                        if (tmp_root->left_ != nullptr) {
+                            tmp_root->left_->parent_ = tmp_root;
+                        }
+                        if (tmp_root->right_ != nullptr) {
+                            tmp_root->right_->parent_ = tmp_root;
+                        }
+                        return tmp_root;
+                    }
+                    auto tmp_root = new node_t<key_type>(key, node_t<key_type>::node_col::BLACK_);
+                    tmp_root->left_ = t_l_root;
+                    tmp_root->right_ = t_r_root;
+                    if (tmp_root->left_ != nullptr) {
+                        tmp_root->left_->parent_ = tmp_root;
+                    }
+                    if (tmp_root->right_ != nullptr) {
+                        tmp_root->right_->parent_ = tmp_root;
+                    }
+                    return tmp_root;
+                }
+        
+                std::tuple<node_t<key_type>*, bool, node_t<key_type>*> split(node_t<key_type>* cur, key_type key) {
+                    if (cur == nullptr) {
+                        return {nullptr, false, nullptr};
+                    }
+                    if (key == cur->get_key()) {
+                        return {cur->left_, true, cur->right_};
+                    }
+                    if (key < cur->get_key()) {
+                        auto [left, res, right] = split(cur->left_, key);
+                        return {left, res, join(right, cur->right_, cur->get_key())};
+                    }
+                    auto [left, res, right] = split(cur->right_, key);
+                    return {join(cur->left_, left, cur->get_key()), res, cur->right_};
+                }
+        
+                node_t<key_type>*union_impl(node_t<key_type>* t_l_root, node_t<key_type>* t_r_root) {
+                    if (t_l_root == nullptr) {
+                        return t_r_root;
+                    }
+                    else if (t_r_root == nullptr) {
+                        return t_l_root;
+                    }
+        
+                    auto [left, res, right] = split(t_l_root, t_r_root->get_key());
+                    auto left_p = union_impl(left, t_r_root->left_);
+                    auto right_p = union_impl(right, t_r_root->right_);
+                    return join(left_p, right_p, t_r_root->get_key());
+                }
     public:
-        void join(tree_t& t_l, tree_t& t_r, const key_type& key) {
-            if (t_l.root_->get_black_height(t_l.root_) > t_r.root_->get_black_height(t_r.root_)) {
-                auto node = join_right(t_l.root_, t_r.root_, key);
-                if (node->color_ ==  node_t<key_type>::node_col::RED_ && 
-                    node->right_->color_ ==  node_t<key_type>::node_col::BLACK_) {
-                        node->color_ =  node_t<key_type>::node_col::BLACK_; 
-                }
-                t_l.root_ = nullptr;
-                t_r.root_ = nullptr;
-                root_ = node;
-                return;
-            }
-            else if (t_l.root_->get_black_height(t_l.root_) < t_r.root_->get_black_height(t_r.root_)) {
-                auto node = join_left(t_l.root_, t_r.root_, key);
-                if (node->color_ ==  node_t<key_type>::node_col::RED_ && 
-                    node->left_->color_ ==  node_t<key_type>::node_col::BLACK_) {
-                        node->color_ =  node_t<key_type>::node_col::BLACK_; 
-                }
-                t_r.root_ = nullptr;
-                root_ = node;
-                return;
-            }
-            else if (t_l.root_->color_ == node_t<key_type>::node_col::BLACK_ &&
-                     t_l.root_->right_->color_ == node_t<key_type>::node_col::BLACK_) {
-                auto tmp_root = new node_t<key_type>(key, node_t<key_type>::node_col::RED_);
-                tmp_root->left_ = t_l.root_;
-                tmp_root->right_ = t_r.root_;
-                tmp_root->left_->parent_ = tmp_root;
-                tmp_root->right_->parent_ = tmp_root;
-                root_ = tmp_root;
-                t_r.root_ = nullptr;
-                return;
-            }
-            auto tmp_root = new node_t<key_type>(key, node_t<key_type>::node_col::BLACK_);
-            tmp_root->left_ = t_l.root_;
-            tmp_root->right_ = t_r.root_;
-            tmp_root->left_->parent_ = tmp_root;
-            tmp_root->right_->parent_ = tmp_root;
-            root_ = tmp_root;
+
+        void union_tree(tree_t& t_l, tree_t& t_r) {
+            auto new_root = union_impl(t_l.root_, t_r.root_) ;
+            t_l.root_ = new_root;
             t_r.root_ = nullptr;
-            return;
         }
 };
 

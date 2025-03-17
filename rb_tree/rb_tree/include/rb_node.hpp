@@ -2,6 +2,7 @@
 
 #include "utils.hpp"
 #include <stack>
+#include <tuple>
 
 //-----------------------------------------------------------------------------------------
 
@@ -72,6 +73,9 @@ class node_t {
         
         size_t get_black_height(node_t<key_type>* cur) {
             size_t res = 0;
+            if (cur == nullptr) {
+                return res;
+            }
             while (cur->left_ != nullptr ) { //hmmm
                 cur = cur->left_;
                 if (cur->color_ == node_col::BLACK_) {
