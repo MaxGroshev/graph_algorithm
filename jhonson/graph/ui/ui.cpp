@@ -4,66 +4,44 @@
 
 namespace graph_ui {
 
-void run_tree(std::istream & in_strm) {
-    rb::tree_t<int> pine;
-    char type_of_data = '\0';
-    int data    = 0;
-    int l_bound = 0;
-    int u_bound = 0;
+using namespace graph;
 
-    std::vector<size_t> result;
-    while(!in_strm.eof()) { //^D to exit from cin input
-        in_strm >> type_of_data;
-        if (type_of_data == 'k') {
-            in_strm >> data;
-            pine.insert(data);
-            // pine.graphviz_dump();
+void run(std::istream &in_strm) {
+    graph::graph_t<int> gr;
+    char type_of_edge = '\0';
+    int data = 0;
+    size_t edge = 0;
+    size_t price = 0;
+
+    
+    bool end_in = false;
+    while (!end_in) { //^D to exit from cin input
+        in_strm >> data;
+        std::vector<std::pair<size_t, size_t>> in;
+        std::vector<std::pair<size_t, size_t>> out;
+
+        std::cout << data << std::endl;
+        while (type_of_edge != '|') {
+            in_strm >> type_of_edge;
+            if (type_of_edge == '$') {
+                end_in = true;
+                break;
+            }
+            if (type_of_edge == '|') {
+                type_of_edge = '\0';
+                break;
+            }
+            in_strm >> edge >> price;
+            if (type_of_edge == 'o') {
+                out.push_back(std::pair<size_t, size_t>(edge, price));
+            } else if (type_of_edge == 'i') {
+                in.push_back(std::pair<size_t, size_t>(edge, price));
+            } 
         }
-        else if (type_of_data == 'q') {
-            in_strm >> l_bound >> u_bound;
-            std::cout << pine.range_query(l_bound, u_bound) << ' ';
-        }
-        type_of_data = '\0';
+        gr.append(data, in.begin(), in.end(), out.begin(), out.end());
     }
-    pine.graphviz_dump();
+    gr.graphviz_dump();
     std::cout << std::endl;
-    // pine.graphviz_dump();
 }
 
-void run_set_and_tree(std::istream & in_strm) {
-    rb::tree_t<int> pine;
-    std::set<int> enemy_set;
-    char type_of_data = '\0';
-    int data    = 0;
-    int l_bound = 0;
-    int u_bound = 0;
-
-    while(!in_strm.eof()) {
-        in_strm >> type_of_data;
-        if (type_of_data == 'k') {
-            in_strm >> data;
-            pine.insert(data);
-            enemy_set.insert(data);
-        }
-        else if (type_of_data == 'q') {
-            in_strm >> l_bound >> u_bound;
-
-            auto tree_start_time = chrono_cur_time ();
-            std::clog << "rb tree res: ";
-            std::cout << pine.range_query(l_bound, u_bound) << "\n";
-            auto tree_end_time = chrono_cur_time ();
-            std::clog << "rb tree run time: " <<
-                                    (tree_end_time - tree_start_time) / 0.1ms  << '\n';
-
-            auto set_start_time = chrono_cur_time ();
-            std::clog << "Set res:";
-            std::cout << range_query(enemy_set, l_bound, u_bound);
-            auto set_end_time = chrono_cur_time ();
-            std::clog << "Set Run time: " <<
-                                     (set_end_time - set_start_time) / 0.1ms  << '\n';
-        }
-        type_of_data = '\0';
-    }
-}
-
-}
+} // namespace graph_ui

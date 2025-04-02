@@ -1,0 +1,20 @@
+digraph   
+{
+rankdir = "LR"
+splines = "true"
+
+node0x603000001e40 [shape      = "Mrecord", width = 0.9, height = 0.9,  fillcolor   = "#0083C3", style = "filled", fontcolor= " black", fontname = "Calibri", color = "black", label = "{num: 0}"]
+node0x603000001e40 -> node0x603000001e44 [color = "#8DB6CD", style = "", constraint = true, fillcolor = "#8DB6CD",   fontcolor = "", fontname = "Calibri", label = "{5}"]
+node0x603000001e40 -> node0x603000001e48 [color = "#8DB6CD", style = "", constraint = true, fillcolor = "#8DB6CD",   fontcolor = "", fontname = "Calibri", label = "{7}"]
+node0x603000001e40 -> node0x603000001e4c [color = "#8DB6CD", style = "", constraint = true, fillcolor = "#8DB6CD",   fontcolor = "", fontname = "Calibri", label = "{7}"]
+node0x603000001e44 [shape      = "Mrecord", width = 0.9, height = 0.9,  fillcolor   = "#0083C3", style = "filled", fontcolor= " black", fontname = "Calibri", color = "black", label = "{num: 1}"]
+node0x603000001e44 -> node0x603000001e4c [color = "#8DB6CD", style = "", constraint = true, fillcolor = "#8DB6CD",   fontcolor = "", fontname = "Calibri", label = "{0}"]
+node0x603000001e48 [shape      = "Mrecord", width = 0.9, height = 0.9,  fillcolor   = "#0083C3", style = "filled", fontcolor= " black", fontname = "Calibri", color = "black", label = "{num: 2}"]
+node0x603000001e48 -> node0x603000001e40 [color = "#8DB6CD", style = "", constraint = true, fillcolor = "#8DB6CD",   fontcolor = "", fontname = "Calibri", label = "{1}"]
+node0x603000001e4c [shape      = "Mrecord", width = 0.9, height = 0.9,  fillcolor   = "#0083C3", style = "filled", fontcolor= " black", fontname = "Calibri", color = "black", label = "{num: 3}"]
+node0x603000001e4c -> node0x603000001e48 [color = "#8DB6CD", style = "", constraint = true, fillcolor = "#8DB6CD",   fontcolor = "", fontname = "Calibri", label = "{1}"]
+node0x603000001e50 [shape      = "Mrecord", width = 0.9, height = 0.9,  fillcolor   = "#0083C3", style = "filled", fontcolor= " black", fontname = "Calibri", color = "black", label = "{num: 4}"]
+node0x603000001e50 -> node0x603000001e44 [color = "#8DB6CD", style = "", constraint = true, fillcolor = "#8DB6CD",   fontcolor = "", fontname = "Calibri", label = "{2}"]
+node0x603000001e50 -> node0x603000001e48 [color = "#8DB6CD", style = "", constraint = true, fillcolor = "#8DB6CD",   fontcolor = "", fontname = "Calibri", label = "{2}"]
+node0x603000001e50 -> node0x603000001e4c [color = "#8DB6CD", style = "", constraint = true, fillcolor = "#8DB6CD",   fontcolor = "", fontname = "Calibri", label = "{3}"]
+}

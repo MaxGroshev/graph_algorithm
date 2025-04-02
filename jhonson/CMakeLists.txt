@@ -6,9 +6,10 @@ project(graph)
 
 #-----------------------------------------------------------------------------------------
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(TESTING_ENABLED ON CACHE BOOL [FORCE])
 set(CMAKE_CPP_COMPILER clang)
-add_compile_options(-std=c++20)
+add_compile_options(-std=c++23)
 
 #-----------------------------------------------------------------------------------------
 
@@ -22,7 +23,7 @@ endif ()
 
 #-----------------------------------------------------------------------------------------
 
-add_subdirectory(graph_lib/)
+add_subdirectory(graphviz_lib/)
 add_subdirectory(debug_utils/) #make compile only in debug mode
 add_subdirectory(graph/)
 

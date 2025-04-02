@@ -15,16 +15,16 @@ namespace graphviz {
 struct node_t
 {
     std::string shape     = "Mrecord";
-    std::string fillcolor = "#eed8cd";
+    std::string fillcolor = "#0083C3";
     std::string style     = "filled";
-    std::string fontcolor = "#FAF6F4";
+    std::string fontcolor = "black";
     std::string fontname  = "Calibri";
-    std::string color     = "white";
+    std::string color     = "black";
     std::string margin    = "";
     std::string label     = "";
 
-    template<typename T>
-    inline void print_node(const T* data_node, std::ofstream& graphviz_strm);
+    template<typename T, typename U>
+    inline void print_node (const T* data_node, const U& data,std::ofstream& graphviz_strm);
 };
 
 struct edge_t
@@ -37,14 +37,14 @@ struct edge_t
     std::string color      = "#8DB6CD";
     std::string label      = "";
 
-    template<typename T>
-    inline void print_edge(const T* node_from, const T* node_to, std::ofstream& graphviz_strm);
+    template<typename T, typename U>
+    inline void print_edge(const T* node_from, const T* node_to, const U& price, std::ofstream& graphviz_strm);
 };
 
 struct dump_graph_t
 {
     std::ofstream graphviz_strm;
-    const char* orientation = "";
+    const char* orientation = "LR";
     const char* splines = "true";
 
     node_t graph_node;
@@ -67,7 +67,6 @@ struct dump_graph_t
 };
 
 //-----------------------------------------------------------------------------------------
-
 
 }
 
