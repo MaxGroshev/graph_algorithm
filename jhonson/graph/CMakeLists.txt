@@ -12,7 +12,7 @@ set(SOURCE
 #-----------------------------------------------------------------------------------------
 
 add_executable(${PROJECT_NAME} ${SOURCE} ${DEBUG_UTILS} ./main.cpp)
-target_link_libraries(${PROJECT_NAME} graphviz debug_utils)
+target_link_libraries(${PROJECT_NAME} graphviz debug_utils graph_alg)
 target_include_directories(${PROJECT_NAME} PRIVATE ./ui ./include/)
 
 

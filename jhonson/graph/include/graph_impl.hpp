@@ -1,13 +1,8 @@
 #pragma once
 
 #include "utils.hpp"
-#include <stack>
 #include <vector>
-#include <functional>
-#include <unordered_map>
 #include <list>
-#include <iostream>
-#include <stdexcept>
 #include <utility>
 #include <graphviz.h>
 #include <iterator>
@@ -22,7 +17,6 @@ class graph_t final {
         public:
             node_t(const T& data_) : data(data_) {};
             T data;
-        private:
     };
     
     class node_wrap_t final {
@@ -33,8 +27,7 @@ class graph_t final {
     };
     
     private:
-        static constexpr size_t max_price = std::numeric_limits<size_t>::max();
-        size_t node_cnt;
+        size_t node_cnt = 0;
         std::vector<node_t> nodes; //may be list
         std::vector<std::list<node_wrap_t>> node_adj; //un_map in advance
         void relax() {
@@ -50,29 +43,43 @@ class graph_t final {
             }
         }
     public:
-        template <typename iter> 
-        void append(const T& data, iter in_b, iter in_e, iter out_b, iter out_e) {
-            nodes.push_back(node_t{data});
-            std::list<node_wrap_t> node_list = {node_wrap_t(node_cnt, 0)};
-            node_adj.push_back(std::move(node_list));
-            for (auto it = in_b; it != in_e; it++) {
-                node_adj[it->first].push_back(node_wrap_t(node_cnt, it->second));
-            }
-            for (auto it = out_b; it != out_e; it++) {
-                node_adj[node_cnt].push_back(node_wrap_t(it->first, it->second));
-            }
-            node_cnt++;
-        };
-        void graphviz_dump() const {
-            graphviz::dump_graph_t dump("../graphviz_lib/graph_dump.dot"); 
-            graphviz_dump_impl(dump);
-            dump.run_graphviz("../graphviz_lib/graph_dump.dot", "../graphviz_lib/dump");
-            dump.close_input();
-        }
+        //utils; weak implementation of iterators just for fun
+        typedef typename std::vector<std::list<node_wrap_t>>::iterator iterator;
+        typedef typename std::vector<std::list<node_wrap_t>>::reverse_iterator reverse_iterator;
+        typedef typename std::vector<std::list<node_wrap_t>>::const_iterator const_iterator;
+        typedef typename std::vector<std::list<node_wrap_t>>::const_reverse_iterator const_reverse_iterator;
 
-        void remove();
-        bool bellman_ford();
-        void djikstra();
+        iterator begin()              { return node_adj.begin(); }
+        iterator end()                { return node_adj.end(); }
+        const_iterator cbegin() const { return node_adj.cbegin(); }
+        const_iterator cend()   const { return node_adj.cend(); }
+        const_iterator begin()  const { return node_adj.begin(); }
+        const_iterator end()    const { return node_adj.end(); }
+
+        std::list<node_wrap_t>& operator[](const int index) { return node_adj[index]; }
+        size_t size() const {return nodes.size(); } 
+        
+        template <typename iter> 
+            void append(const T& data, iter in_b, iter in_e, iter out_b, iter out_e) {
+                nodes.push_back(node_t{data});
+                std::list<node_wrap_t> node_list = {node_wrap_t(node_cnt, 0)};
+                node_adj.push_back(std::move(node_list));
+                for (auto it = in_b; it != in_e; it++) {
+                    node_adj[it->first].push_back(node_wrap_t(node_cnt, it->second));
+                }
+                for (auto it = out_b; it != out_e; it++) {
+                    node_adj[node_cnt].push_back(node_wrap_t(it->first, it->second));
+                }
+                node_cnt++;
+            };
+            void graphviz_dump() const {
+                graphviz::dump_graph_t dump("../graphviz_lib/graph_dump.dot"); 
+                graphviz_dump_impl(dump);
+                dump.run_graphviz("../graphviz_lib/graph_dump.dot", "../graphviz_lib/dump");
+                dump.close_input();
+            }
+            void remove();
+            bool bellman_ford();
 };
 
 }

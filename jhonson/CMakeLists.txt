@@ -25,10 +25,11 @@ endif ()
 
 add_subdirectory(graphviz_lib/)
 add_subdirectory(debug_utils/) #make compile only in debug mode
+add_subdirectory(algorythm/)
 add_subdirectory(graph/)
 
+add_subdirectory(./tests/)
 if (TESTING_ENABLED)
-# add_subdirectory(./tests/)
 endif()
 
 unset(TESTING_ENABLED CACHE)
