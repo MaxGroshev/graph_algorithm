@@ -27,8 +27,8 @@ struct graph_helper {
         void graph_init_from(std::istream &in_strm = std::cin) {
             char type_of_edge = '\0';
             int data = 0;
-            size_t edge = 0;
-            size_t price = 0;
+            long long edge = 0;
+            long long price = 0;
 
             bool end_in = false;
             while (!end_in) { //^D to exit from cin input

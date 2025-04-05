@@ -15,11 +15,15 @@ class djicstra : public ::testing::Test {
 //----------------c-------------------------------------------------------------------------
 
 TEST_F(djicstra, wiki) {
-    std::cout << "Current path is " << std::filesystem::current_path() << '\n';
-    std::ifstream in("../tests/end_to_end_tests/my_test_dat/0.dat", std::ios_base::in);
-    gr_helper.graph_init_from(in);
-    in.close();
-
+    std::stringstream ss;
+    ss << R"(0 |
+        1 i 0 7 |
+        2 i 0 9 i  1 10 |
+        3 i 0 14 i 2 2 |
+        4 i 2 11 i 1 15  |
+        5 i 3 9  i 4 6 $)";
+    gr_helper.graph_init_from(ss);
+    gr_helper.gr.graphviz_dump();
     auto res = std_like::djicstra(gr_helper.gr.begin(), gr_helper.gr.end());
     ASSERT_TRUE(res == wiki_res);
 }

@@ -21,13 +21,13 @@ class graph_t final {
     
     class node_wrap_t final {
         public:
-            node_wrap_t(size_t index_, size_t price_) : index(index_), price(price_) {}; 
-            size_t index;
-            size_t price = 0;
+            node_wrap_t(long long index_, long long price_) : index(index_), price(price_) {}; 
+            long long index;
+            long long price = 0;
     };
     
     private:
-        size_t node_cnt = 0;
+        long long node_cnt = 0;
         std::vector<node_t> nodes; //may be list
         std::vector<std::list<node_wrap_t>> node_adj; //un_map in advance
         void relax() {

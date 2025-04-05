@@ -7,6 +7,7 @@
 #include <vector>
 #include <gtest/gtest.h>
 #include <filesystem>
+#include <sstream> 
 
 #include "graphviz.h"
 #include "graph_impl.hpp"
@@ -14,7 +15,7 @@
 #include "graph_alg_impl.hpp"
 #include "debug_utils.hpp"
 
-// #include "big_five_tests.hpp"
+#include "bellman_ford_test.hpp"
 #include "djicstra_test.hpp"
 // #include "rotate_tests.hpp"
 // #include "join_tests.hpp"
