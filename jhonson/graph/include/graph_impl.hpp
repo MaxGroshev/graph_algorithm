@@ -60,26 +60,61 @@ class graph_t final {
         size_t size() const {return nodes.size(); } 
         
         template <typename iter> 
-            void append(const T& data, iter in_b, iter in_e, iter out_b, iter out_e) {
-                nodes.push_back(node_t{data});
-                std::list<node_wrap_t> node_list = {node_wrap_t(node_cnt, 0)};
-                node_adj.push_back(std::move(node_list));
-                for (auto it = in_b; it != in_e; it++) {
-                    node_adj[it->first].push_back(node_wrap_t(node_cnt, it->second));
-                }
-                for (auto it = out_b; it != out_e; it++) {
-                    node_adj[node_cnt].push_back(node_wrap_t(it->first, it->second));
-                }
-                node_cnt++;
-            };
-            void graphviz_dump() const {
-                graphviz::dump_graph_t dump("../graphviz_lib/graph_dump.dot"); 
-                graphviz_dump_impl(dump);
-                dump.run_graphviz("../graphviz_lib/graph_dump.dot", "../graphviz_lib/dump");
-                dump.close_input();
+        void append(const T& data, iter in_b, iter in_e, iter out_b, iter out_e) {
+            nodes.push_back(node_t{data});
+            std::list<node_wrap_t> node_list = {node_wrap_t(node_cnt, 0)};
+            node_adj.push_back(std::move(node_list));
+            for (auto it = in_b; it != in_e; it++) {
+                node_adj[it->first].push_back(node_wrap_t(node_cnt, it->second));
             }
-            void remove();
-            bool bellman_ford();
+            for (auto it = out_b; it != out_e; it++) {
+                node_adj[node_cnt].push_back(node_wrap_t(it->first, it->second));
+            }
+            node_cnt++;
+        }
+        
+        void append_and_connect_with_others_out(long long price_ = 0) {
+            nodes.push_back(node_t{node_cnt});
+            std::list<node_wrap_t> node_list = {node_wrap_t(node_cnt, 0)};
+            node_adj.push_back(std::move(node_list));
+            for (int i = 0; i < node_cnt; i++) {
+                node_adj[node_cnt].push_back(node_wrap_t(i, price_));
+            }
+            node_cnt++;
+        }
+        void append_front_connect_with_others_out(long long price_ = 0) {
+            for (auto& lst : node_adj) {
+                for(auto& node : lst) {
+                    node.index++;
+                }
+            }
+            nodes.insert(nodes.begin(), node_t{-1});
+            std::list<node_wrap_t> node_list = {node_wrap_t(0, 0)};
+            node_cnt++;
+
+            node_adj.insert(node_adj.begin(), std::move(node_list));
+            for (int i = 1; i < node_cnt; i++) {
+                node_adj[0].push_back(node_wrap_t(i, price_));
+            }
+
+        }
+        void dump() const {
+            for (auto& lst : node_adj) {
+                std::cout << "Node: \n";
+                for(auto& node : lst) {
+                    std::cout << node.index << " " << node.price << "; ";
+                }
+                std::cout << std::endl;
+            }
+        }
+        void graphviz_dump() const {
+            graphviz::dump_graph_t dump("../graphviz_lib/graph_dump.dot"); 
+            graphviz_dump_impl(dump);
+            dump.run_graphviz("../graphviz_lib/graph_dump.dot", "../graphviz_lib/dump");
+            dump.close_input();
+        }
+        void remove();
+        bool bellman_ford();
 };
 
 }

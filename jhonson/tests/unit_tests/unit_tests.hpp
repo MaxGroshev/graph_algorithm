@@ -15,10 +15,9 @@
 #include "graph_alg_impl.hpp"
 #include "debug_utils.hpp"
 
-#include "bellman_ford_test.hpp"
-#include "djicstra_test.hpp"
-// #include "rotate_tests.hpp"
-// #include "join_tests.hpp"
-// #include "range_tests.hpp"
+// #include "bellman_ford_test.hpp"
+// #include "djicstra_test.hpp"
+#include "jhonson_test.hpp"
+
 
 //-----------------------------------------------------------------------------------------

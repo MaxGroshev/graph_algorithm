@@ -21,7 +21,7 @@ void edge_t::print_edge (const T* node_from, const T* node_to, const U& price, s
     graphviz_strm << "node" << node_from << " -> node" << node_to << " [color = \"" << color
                << "\", style = \""    << style << "\", constraint = " << constraint
                << ", fillcolor = \""  << fillcolor << "\",   fontcolor = \"" << fontcolor
-               << "\", fontname = \"" << fontname  << "\", label = \"{"<< price << "}\"]\n";
+               << "\", fontname = \"" << fontname  <<  "\", fontsize = \"" << "13" << "\", headlabel = \"{"<< price << "}\"]\n";
 }
 
 void dump_graph_t::run_graphviz(const char* dot_dir, const char* pic_dir) {
@@ -31,7 +31,7 @@ void dump_graph_t::run_graphviz(const char* dot_dir, const char* pic_dir) {
     static int num_of_print = 0;
     num_of_print++;
     std::string dest_file =  pic_dir + std::string{"/tree_d"} + std::to_string(num_of_print) + ".png";
-    std::string command = "dot " + std::string(dot_dir) + " -q -T png -o " + dest_file;
+    std::string command = "circo " + std::string(dot_dir) + " -q -T png -o " + dest_file;
     std::clog << dest_file << std::endl;
     graphviz_strm.close();
     system (command.c_str());
