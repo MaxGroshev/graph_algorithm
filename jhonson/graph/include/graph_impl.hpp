@@ -5,7 +5,7 @@
 #include <list>
 #include <utility>
 #include <graphviz.h>
-#include <iterator>
+// import <iterator>;
 
 //-----------------------------------------------------------------------------------------
 //probably add iterators to iterate into graph
@@ -96,7 +96,6 @@ class graph_t final {
             for (int i = 1; i < node_cnt; i++) {
                 node_adj[0].push_back(node_wrap_t(i, price_));
             }
-
         }
         void dump() const {
             for (auto& lst : node_adj) {
