@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.21)
+cmake_minimum_required (VERSION 3.28)
 
 #-----------------------------------------------------------------------------------------
 
@@ -15,15 +15,12 @@ include_directories(${GTEST_INCLUDE_DIRS})
 set (UNIT_TESTS
     ./unit_tests/main.cpp)
 
-# End_to_end_tests
-set (E2E_TESTS
-    ./end_to_end_tests/e2e_test.py)
 
 #-----------------------------------------------------------------------------------------
 
 add_executable            (unit_tests ${UNIT_TESTS} ${HEADERS} ${DEBUG_UTILS})
 target_include_directories(unit_tests PRIVATE${GTEST_INCLUDE_DIRS}
-                                      ../graph/include/ ../graph/ui/)
+../graph/include/ ../graph/ui/)
 target_link_libraries     (unit_tests ${GTEST_BOTH_LIBRARIES} graphviz debug_utils graph_alg)
 
 

@@ -1,23 +1,24 @@
-#pragma once
+module;
+export module graph_alg;
 
-#include <vector>
-#include <list>
-#include <utility>
-#include <graphviz.h>
-#include <iterator>
-#include <queue>
-#include <optional>
-#include <set>
+import <vector>;
+import <list>;
+import <utility>;
+import <iterator>;
+import <queue>;
+import <optional>;
+import <iostream>;
 
 //-----------------------------------------------------------------------------------------
 
 //try to make module here
 namespace std_like {
-    static constexpr size_t max_price = std::numeric_limits<long long>::max();
     
-    //------------------------------------
+static constexpr size_t max_price = std::numeric_limits<long long>::max();
     
-template <typename iter>
+//------------------------------------
+    
+export template <typename iter>
 std::vector<long long> djicstra(iter start, iter fin, int from) {
     std::vector<long long> dist(fin - start, max_price);
     dist[from] = 0;
@@ -53,7 +54,7 @@ bool relax(iter u, iter v, contT& dist) {
     return false;
 }
 //make iteraror verson
-template <typename T>
+export template <typename T>
 std::optional<std::vector<std::pair<int, long long>>> bellman_ford(T& graph) { // return node and price
     std::vector<std::pair<int, long long>> dist (graph.size(), std::make_pair(-1, max_price));
     dist[0].first  = 0;
@@ -81,7 +82,7 @@ std::optional<std::vector<std::pair<int, long long>>> bellman_ford(T& graph) { /
 
 //------------------------------------
 
-template <typename T>
+export template <typename T>
 std::optional<std::vector<std::vector<int>>> jhonson(T& graph) {
     std::vector<std::vector<int>> res(graph.size(), std::vector<int>(graph.size(), 0));
 

@@ -6,10 +6,10 @@
 #include "graph_impl.hpp"
 #include "graphviz.h"
 #include "time_control.hpp"
-#include <set>
-#include <utility>
-#include <vector>
-#include "graph_alg_impl.hpp"
+import <utility>;
+import <vector>;
+import <iostream>;
+import graph_alg;
 
 //-----------------------------------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-#include "./ui.hpp"
+#include "ui.hpp"
 
 //-----------------------------------------------------------------------------------------
 
@@ -10,11 +10,12 @@ void run(std::istream &in_strm) {
     graph_helper<int> gr_hand{};
 
     gr_hand.graph_init_from(in_strm);
+
+    auto res = std_like::djicstra(gr_hand.gr.begin(), gr_hand.gr.end(), 0);
+    for(const auto& r : res) {
+        std::cout << r << std::endl;
+    }
     gr_hand.gr.graphviz_dump();    
-    // auto res = std_like::djicstra(gr_hand.gr.begin(), gr_hand.gr.end());
-    // for (const auto& d : res) {
-    //     std::cout << d << std::endl;
-    // }
 }
 
 } // namespace graph_ui

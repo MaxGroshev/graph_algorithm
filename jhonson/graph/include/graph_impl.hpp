@@ -1,11 +1,10 @@
 #pragma once
 
-#include "utils.hpp"
-#include <vector>
-#include <list>
-#include <utility>
 #include <graphviz.h>
-// import <iterator>;
+
+import <vector>;
+import <list>;
+import <utility>;
 
 //-----------------------------------------------------------------------------------------
 //probably add iterators to iterate into graph

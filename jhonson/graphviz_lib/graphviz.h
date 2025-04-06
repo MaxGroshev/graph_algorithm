@@ -1,10 +1,6 @@
 #pragma once
 #include <iostream>
-#include <cstdlib>
-#include <cstring>
-#include <unistd.h>
 #include <fstream>
-#include <vector>
 #include <string>
 #include <cassert>
 
