@@ -7,12 +7,16 @@ using namespace graph;
 class jhonson : public ::testing::Test {
     protected:
         graph_ui::graph_helper<int> gr_helper;
-        std::vector<std::vector<int>> wiki 
-                            = {{1}};
+        std::vector<std::vector<int>> wiki_res 
+                            = {{0, 1, -3, 2, -4},
+                               {3, 0, -4, 1, -1},
+                               {7, 4, 0, 5, 3},
+                               {2, -1, -5, 0, -2},
+                               {8, 5, 1, 6, 0}};
         void SetUp() {}
 };
 
-//----------------c-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
 
 TEST_F(jhonson, wiki) {
     std::stringstream ss;
@@ -24,6 +28,6 @@ TEST_F(jhonson, wiki) {
     gr_helper.graph_init_from(ss);
     gr_helper.gr.graphviz_dump();
     auto res = std_like::jhonson(gr_helper.gr);
-    // ASSERT_TRUE(res.has_value() && res == wiki_no_cycle_res);
+    ASSERT_TRUE(res.has_value() && res == wiki_res);
 }
 

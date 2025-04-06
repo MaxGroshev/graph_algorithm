@@ -26,7 +26,7 @@ TEST_F(bellman_ford, wiki_no_cycle) {
            4 i 2 9 i 1 -4 o 3 7 $)";
     gr_helper.graph_init_from(ss);
     gr_helper.gr.graphviz_dump();
-    auto res = std_like::bellman_ford(gr_helper.gr);
+    auto res = std_like::bellman_ford(gr_helper.gr.begin(), gr_helper.gr.end());
     ASSERT_TRUE(res.has_value() && res == wiki_no_cycle_res);
 }
 
@@ -39,6 +39,18 @@ TEST_F(bellman_ford, wiki_cycle) {
         4 i 2 9 i 1 -4 o 3 7 o 0 2$)";
     gr_helper.graph_init_from(ss);
     gr_helper.gr.graphviz_dump();
-    auto res = std_like::bellman_ford(gr_helper.gr);
+    auto res = std_like::bellman_ford(gr_helper.gr.begin(), gr_helper.gr.end());
     ASSERT_TRUE(res.has_value() && res == wiki_cycle_res);
 }
+
+TEST_F(bellman_ford, wiki_negative_cycle) {
+    std::stringstream ss;
+    ss << R"(0 |
+            1 i 0 -1 |
+            2 i 1 -1 o 0 -1 $)";
+    gr_helper.graph_init_from(ss);
+    gr_helper.gr.graphviz_dump();
+    auto res = std_like::bellman_ford(gr_helper.gr.begin(), gr_helper.gr.end());
+    ASSERT_TRUE(!res.has_value());
+}
+

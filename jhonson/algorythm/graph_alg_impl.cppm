@@ -11,7 +11,6 @@ import <iostream>;
 
 //-----------------------------------------------------------------------------------------
 
-//try to make module here
 namespace std_like {
     
 static constexpr size_t max_price = std::numeric_limits<long long>::max();
@@ -53,32 +52,34 @@ bool relax(iter u, iter v, contT& dist) {
     }
     return false;
 }
+
 //make iteraror verson
-export template <typename T>
-std::optional<std::vector<std::pair<int, long long>>> bellman_ford(T& graph) { // return node and price
-    std::vector<std::pair<int, long long>> dist (graph.size(), std::make_pair(-1, max_price));
+export template <typename iter>
+std::optional<std::vector<std::pair<int, long long>>> bellman_ford(iter start, iter fin) { // return node and price
+    auto gr_size = fin - start;
+    std::vector<std::pair<int, long long>> dist (gr_size, std::make_pair(-1, max_price));
     dist[0].first  = 0;
     dist[0].second = 0;
 
-    for (int i = 1; i < graph.size() - 1; i++) {
-        for (int j = 0; j < graph.size(); j++) {
-            auto head  = graph[j].begin();
-            for (auto it = std::next(head); it != graph[j].end(); ++it) {
+    for (int i = 1; i < gr_size; i++) {
+        for (auto lst = start; lst != fin; lst++) {
+            auto head  = lst->begin();
+            for (auto it = std::next(head); it != lst->end(); ++it) {
                 relax(head, it, dist);
             }
         }
     }
 
-    for (int i = 1; i < graph.size(); i++) {
-        auto head  = graph[i].begin();
-        for (auto it = std::next(head); it != graph[i].end(); ++it) {
+    for (auto lst = start; lst != fin; lst++) {
+        auto head  = lst->begin();
+        for (auto it = std::next(head); it != lst->end(); ++it) {
             if (relax(head, it, dist)) {
-                return {};
+                return std::nullopt;
             }   
         }
     }
     return dist;
-} 
+}
 
 //------------------------------------
 
@@ -89,18 +90,18 @@ std::optional<std::vector<std::vector<int>>> jhonson(T& graph) {
     auto gr = graph;
     gr.append_front_connect_with_others_out(0);
     gr.graphviz_dump();
-    if (!bellman_ford(gr).has_value()) {
+    if (!bellman_ford(gr.begin(), gr.end()).has_value()) {
         std::cerr << "Has negative cycle";
         return std::nullopt;
     }
-    auto sht_path = bellman_ford(gr).value();
+    auto sht_path = bellman_ford(gr.begin(), gr.end()).value();
     for (int i = 0; i < gr.size(); i++) {
         auto head  = gr[i].begin();
         for (auto it = std::next(head); it != gr[i].end(); ++it) {
             it->price = it->price + sht_path[i].second - sht_path[it->index].second;
         }
     }
-
+    gr.graphviz_dump();
     auto gr_enh = graph;
     for (int i = 1; i < gr.size(); i++) {
         auto head  = gr[i].begin();
@@ -113,6 +114,7 @@ std::optional<std::vector<std::vector<int>>> jhonson(T& graph) {
             iter1->index = iter2->index - 1;
         }
     }
+    gr_enh.graphviz_dump();
     sht_path.erase(sht_path.begin());
     for (int i = 0; i < gr_enh.size(); i++) {
         auto dj_path = djicstra(gr_enh.begin(), gr_enh.end(), i);
@@ -120,13 +122,7 @@ std::optional<std::vector<std::vector<int>>> jhonson(T& graph) {
             res[i][j] = dj_path[j] - sht_path[i].second + sht_path[j].second;
         }
     }
-    for (const auto& i : res) {
-        for (const auto& j : i) {
-            std::cout << j << " ";
-        }
-        std::cout << std::endl;
-    }
-    return res;
 
+    return res;
 }
 } // namespace std_like
