@@ -11,7 +11,7 @@ void run(std::istream &in_strm) {
 
     gr_hand.graph_init_from(in_strm);
 
-    auto res = std_like::djicstra(gr_hand.gr.begin(), gr_hand.gr.end(), 0);
+    auto res = std_like::djicstra(gr_hand.gr.begin(), gr_hand.gr.end(), 0).dist;
     for(const auto& r : res) {
         std::cout << r << std::endl;
     }

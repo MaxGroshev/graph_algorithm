@@ -25,6 +25,6 @@ TEST_F(djicstra, wiki) {
     gr_helper.graph_init_from(ss);
     gr_helper.gr.graphviz_dump();
     auto res = std_like::djicstra(gr_helper.gr.begin(), gr_helper.gr.end(), 0);
-    ASSERT_TRUE(res == wiki_res);
+    ASSERT_TRUE(res.dist == wiki_res);
 }
 
